@@ -1,4 +1,4 @@
-FROM openms/executables:bba8e9c2242a
+FROM openms/executables:2.5.0
 
 # Installing core dependencies for python
 RUN apt-get update -y
