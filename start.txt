@@ -1,3 +1,14 @@
 #!/bin/bash
 #Indicate bash pre server launch
 exec "$@"
+
+#!/usr/bin/env python3
+import sys
+import shutil
+import os
+
+# Add path to notebook dir
+args = sys.argv + ['--notebook-dir ./notebooks']
+
+print(args, flush=True)
+os.execv(shutil.which('python3'), args)
