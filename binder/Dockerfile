@@ -9,12 +9,12 @@ RUN apt-get install -y xvfb
 RUN apt-get install -y wget
 
 # Binder Specific Installations
-ARG NB_USER=jovyan
+ENV JUPYTER_ENABLE_LAB=yes
+ARG NB_USER=IODA
 ARG NB_UID=1000
 ENV USER ${NB_USER}
 ENV NB_UID ${NB_UID}
 ENV HOME /home/${NB_USER}
-ENV JUPYTER_ENABLE_LAB=yes
 
 RUN adduser --disabled-password \
     --gecos "Default user" \
