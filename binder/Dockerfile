@@ -10,7 +10,7 @@ RUN apt-get install -y wget
 
 # Binder Specific Installations
 ENV JUPYTER_ENABLE_LAB=yes
-ARG NB_USER=jovyan
+ARG NB_USER=IODA
 ARG NB_UID=1000
 ENV USER ${NB_USER}
 ENV NB_UID ${NB_UID}
@@ -32,5 +32,4 @@ COPY . ${HOME}
 USER root
 RUN chown -R ${NB_UID} ${HOME}
 USER ${NB_USER}
-RUN HOME /home/${NB_USER}
-RUN -v /home/${NB_USER}
+ENV HOME /home/${NB_USER}
