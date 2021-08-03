@@ -24,7 +24,6 @@ jupyterlab-link-share==0.2
 
 # Python Kernel
 ipykernel==5.1
-xeus-python
 ipywidgets==7.6
 widgetsnbextension==3.5
 ipyleaflet==0.13
