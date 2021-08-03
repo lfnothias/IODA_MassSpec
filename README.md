@@ -8,13 +8,12 @@ This repository will help accomplish two things:
 
 ## Running on your own data
 
-View interface (non-interactive): [`IODA_MS2Planner.ipynb`](https://nbviewer.jupyter.org/github/lfnothias/IODA_MassSpec/blob/master/IODA_notebooks_welcome.ipynb)
+**View interface** (non-interactive): [`IODA_MS2Planner.ipynb`](https://nbviewer.jupyter.org/github/lfnothias/IODA_MassSpec/blob/master/IODA_notebooks_welcome.ipynb)
 
+**Interactive interface with Binder**
+Binder standard server -> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/home/jovyan/IODA_notebooks_welcome.ipynb)
 
-We can run this on Binder, click it below
-Binder standard environment -> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/home/jovyan/IODA_notebooks_welcome.ipynb)
-
-Binder with GESIS -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/home/jovyan/IODA_notebooks_welcome.ipynb)
+Binder with GESIS server -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/home/jovyan/IODA_notebooks_welcome.ipynb)
 
 You will need to do two things:
 
