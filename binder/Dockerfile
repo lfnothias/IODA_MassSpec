@@ -10,7 +10,7 @@ RUN apt-get install -y wget
 
 # Binder Specific Installations
 ENV JUPYTER_ENABLE_LAB=yes
-ARG NB_USER=IODA
+ARG NB_USER=jovyan
 ARG NB_UID=1000
 ENV USER ${NB_USER}
 ENV NB_UID ${NB_UID}
