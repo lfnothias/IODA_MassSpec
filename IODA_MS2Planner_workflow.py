@@ -684,17 +684,17 @@ def make_MS2Planner_targeted_lists_from_table(input_filename:str,rt_margin:float
 
 
 def run_MS2Planner_baseline(input_filename:str, output_filename:str, intensity_threshold:float, intensity_ratio:float, num_path:int, win_len:float, isolation:float, delay:float):
-    cmd_baseline = ('python3 path_finder.py baseline '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -win_len '+str(win_len)+' -isolation '+str(isolation)+' -delay '+str(delay))
+    cmd_baseline = ('python3 MS2Planner/path_finder.py baseline '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -win_len '+str(win_len)+' -isolation '+str(isolation)+' -delay '+str(delay))
     logger.info('Command: '+cmd_baseline)
     os.system(cmd_baseline)
 
 def run_MS2Planner_apex(input_filename:str, output_filename:str, intensity_threshold:float, intensity_ratio:float, num_path:int, intensity_accu:float, isolation:float, delay:float, min_scan:float, max_scan:float):
-    cmd_apex = ('python3 path_finder.py apex '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -intensity_accu '+str(intensity_accu)+' -isolation '+str(isolation)+' -delay '+str(delay)+' -min_scan '+str(min_scan)+' -max_scan '+str(max_scan))
+    cmd_apex = ('python3 MS2Planner/path_finder.py apex '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -intensity_accu '+str(intensity_accu)+' -isolation '+str(isolation)+' -delay '+str(delay)+' -min_scan '+str(min_scan)+' -max_scan '+str(max_scan))
     logger.info('Command: '+cmd_apex)
     os.system(cmd_apex)
 
 def run_MS2Planner_curve(input_filename:str, output_filename:str, intensity_threshold:float, intensity_ratio:float, num_path:int, input_filename_curve:str, intensity_accu:float, rt_tolerance_curve:float, mz_tolerance_curve:float, isolation:float, delay:float, min_scan:float, max_scan:float, cluster:str):
-    cmd_curve = ('python3 path_finder.py curve '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -infile_raw '+str(input_filename_curve)+' -intensity_accu '+str(intensity_accu)+' -restriction '+str(rt_tolerance_curve)+' '+str(mz_tolerance_curve)+' -isolation '+str(isolation)+' -delay '+str(delay)+' -min_scan '+str(min_scan)+' -max_scan '+str(max_scan)+' -cluster '+str(cluster))
+    cmd_curve = ('python3 MS2Planner/path_finder.py curve '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -infile_raw '+str(input_filename_curve)+' -intensity_accu '+str(intensity_accu)+' -restriction '+str(rt_tolerance_curve)+' '+str(mz_tolerance_curve)+' -isolation '+str(isolation)+' -delay '+str(delay)+' -min_scan '+str(min_scan)+' -max_scan '+str(max_scan)+' -cluster '+str(cluster))
     logger.info('Command: '+cmd_curve)
     logger.info('MS2Planner in Curve mode can take up to 10 minutes to complete ... please wait')
     try:

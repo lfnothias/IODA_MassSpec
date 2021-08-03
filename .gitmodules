@@ -1,0 +1,3 @@
+[submodule "MS2Planner"]
+	path = MS2Planner
+	url = https://github.com/mohimanilab/MS2Planner
