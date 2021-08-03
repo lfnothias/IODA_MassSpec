@@ -12,9 +12,9 @@ View interface (non-interactive): [`IODA_MS2Planner.ipynb`](https://nbviewer.jup
 
 
 We can run this on Binder, click it below
-Binder standard environment -> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/IODA_notebooks_welcome.ipynb)
+Binder standard environment -> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/lfnothias/IODA_MassSpec/new_branch?urlpath=lab/tree/IODA_notebooks_welcome.ipynb)
 
-Binder with GESIS -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/IODA_notebooks_welcome.ipynb)
+Binder with GESIS -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/new_branch?urlpath=lab/tree/IODA_notebooks_welcome.ipynb)
 
 You will need to do two things:
 
@@ -24,7 +24,7 @@ You will need to do two things:
 
 ## Testing
 
-![Unit Test](https://github.com/lfnothias//IODA_MassSpec//workflows/Unit%20Test/badge.svg)
+![Unit Test](https://github.com/lfnothias/IODA_MassSpec//workflows/Unit%20Test/badge.svg)
 
 Unit tests are run using github actions. To run them manually:
 
