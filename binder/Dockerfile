@@ -14,6 +14,7 @@ ARG NB_UID=1000
 ENV USER ${NB_USER}
 ENV NB_UID ${NB_UID}
 ENV HOME /home/${NB_USER}
+ENV JUPYTER_ENABLE_LAB=yes
 
 RUN adduser --disabled-password \
     --gecos "Default user" \
@@ -29,5 +30,5 @@ RUN pip3 install --no-cache-dir jupyterlab
 # Copying files
 COPY . ${HOME}
 USER root
-RUN chown -R ${NB_UID} ${HOME} -e JUPYTER_ENABLE_LAB=yes
+RUN chown -R ${NB_UID} ${HOME}
 USER ${NB_USER}
