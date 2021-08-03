@@ -10,6 +10,10 @@ RUN apt-get install -y wget
 
 # Binder Specific Installations
 RUN pip3 install --no-cache-dir notebook==5.*
+RUN pip3 install --no-cache-dir notebook
+RUN pip3 install --no-cache-dir jupyterhub
+RUN pip3 install --no-cache-dir jupyterlab
+
 ARG NB_USER=jovyan
 ARG NB_UID=1000
 ENV USER ${NB_USER}
@@ -28,7 +32,6 @@ RUN adduser --disabled-password \
 
 # Copying files
 COPY . ${HOME}
-
 USER root
 RUN chown -R ${NB_UID} ${HOME}
 USER ${NB_USER}
