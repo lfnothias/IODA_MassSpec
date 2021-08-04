@@ -11,3 +11,4 @@ scipy==1.5.2
 wincertstore==0.2
 jupyterlab_launcher>=0.5.0
 pymzml
+nbresuse==0.3.3
