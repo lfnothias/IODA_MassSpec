@@ -137,6 +137,7 @@ def run_MS2Planner_baseline_from_mzTab(input_filename:int, num_path:int, intensi
         path_input_folder = "TOPPAS_Workflow/toppas_output/TOPPAS_out/Targeted_MzTab/"
         mzTab_file = os.listdir("TOPPAS_Workflow/toppas_output/TOPPAS_out/Targeted_MzTab/")[0]
         input_filename = path_input_folder+mzTab_file
+        print(input_filename)
     else:
         logger.info("the input_filename variable should be a valid path/download link or must be: 'OpenMS_generated', when using the OpenMS workflow online")
 
