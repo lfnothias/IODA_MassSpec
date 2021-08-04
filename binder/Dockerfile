@@ -7,6 +7,7 @@ RUN apt-get install -y python3-pip python3 build-essential
 # Installing Virtual Frame Buffer
 RUN apt-get install -y xvfb
 RUN apt-get install -y wget
+RUN apt-get install -y nodejs
 
 # Binder Specific Installations
 ENV JUPYTER_ENABLE_LAB=yes
