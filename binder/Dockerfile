@@ -10,12 +10,13 @@ RUN apt-get install -y wget
 
 # Binder Specific Installations
 ENV JUPYTER_ENABLE_LAB=yes
-ENV JUPYTERLAB_WORKSPACES_DIR=/home/jovyan/
-ARG NB_USER=IODA
+ARG NB_USER=jovyan
 ARG NB_UID=1000
 ENV USER ${NB_USER}
 ENV NB_UID ${NB_UID}
 ENV HOME /home/${NB_USER}
+ENV HOME=/home/${NB_USER}
+ENV HOME=/home/jovyan/
 
 RUN adduser --disabled-password \
     --gecos "Default user" \
@@ -28,6 +29,7 @@ RUN pip3 install -r ${HOME}/requirements.txt
 RUN pip3 install --no-cache-dir notebook
 RUN pip3 install --no-cache-dir jupyterlab
 RUN pip3 install --no-cache-dir jupyterlab
+ENV jupyter lab --notebook-dir=/home/jovyan/
 
 # Copying files
 COPY . ${HOME}
