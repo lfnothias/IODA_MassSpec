@@ -29,6 +29,7 @@ RUN pip3 install -r ${HOME}/requirements.txt
 RUN pip3 install --no-cache-dir notebook
 RUN pip3 install --no-cache-dir jupyterlab
 RUN pip3 install --no-cache-dir jupyterlab
+RUN pip3 install --no-cache-dir jupyterlab-system-monitor
 ENV jupyter lab --notebook-dir=/home/jovyan/
 
 # Copying files
