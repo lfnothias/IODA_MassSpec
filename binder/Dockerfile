@@ -10,6 +10,7 @@ RUN apt-get install -y wget
 RUN apt-get install -y nodejs
 
 ### Mono install
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
 RUN apt-get install -y gnupg ca-certificates
 RUN apt-get -y install sudo 
