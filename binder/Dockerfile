@@ -13,9 +13,11 @@ RUN apt-get install -y nodejs
 RUN apt-get update && apt-get install -y --no-install-recommends apt-utils
 RUN apt-get install -y gnupg ca-certificates
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+RUN echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main"
+RUN sudo tee /etc/apt/sources.list.d/mono-official-stable.list
 RUN apt update
 RUN apt-get install -y unzip
-RUN apt mono-devel
+RUN apt mono-complete
 RUN apt update
 
 # Binder Specific Installations
