@@ -20,10 +20,12 @@ RUN echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main"
 RUN sudo tee /etc/apt/sources.list.d/mono-official-stable.list
 RUN apt update
 RUN apt-get install -y unzip
-RUN apt-get install -y mono-complete
+RUN apt install -y mono-complete
+RUN apt install -y mono-xsp4
+RUN apt install -y referenceassemblies-pcl 
 RUN apt update
 
-# Binder Specific Installations
+# Binder Specific Inst allations
 ENV JUPYTER_ENABLE_LAB=yes
 ARG NB_USER=jovyan
 ARG NB_UID=1000
