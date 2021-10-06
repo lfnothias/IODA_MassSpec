@@ -19,7 +19,7 @@ RUN echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main"
 RUN sudo tee /etc/apt/sources.list.d/mono-official-stable.list
 RUN apt update
 RUN apt-get install -y unzip
-RUN apt install mono-complete
+RUN apt install -y mono-complete
 RUN apt update
 
 # Binder Specific Installations
