@@ -22,7 +22,6 @@ RUN apt update
 RUN apt-get install -y unzip
 RUN apt install -y mono-complete
 RUN apt install -y mono-xsp4
-RUN apt install -y referenceassemblies-pcl 
 RUN apt update
 
 # Binder Specific Inst allations
