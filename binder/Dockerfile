@@ -49,7 +49,6 @@ ENV jupyter lab --notebook-dir=/home/jovyan/
 
 ## ThermoRawFileParser https://github.com/compomics/ThermoRawFileParser
 RUN wget https://github.com/compomics/ThermoRawFileParser/releases/download/v1.3.4/ThermoRawFileParser.zip -O /home/jovyan/ThermoRawFileParser.zip
-RUN unzip /home/jovyan/ThermoRawFileParser.zip
 
 # Copying files
 COPY . ${HOME}
