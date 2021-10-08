@@ -26,7 +26,8 @@ RUN apt update
 
 ## ThermoRawFileParser https://github.com/compomics/ThermoRawFileParser
 RUN wget https://github.com/compomics/ThermoRawFileParser/releases/download/v1.3.4/ThermoRawFileParser.zip
-RUN unzip ThermoRawFileParser.zip -d home/jovyan/ThermoRawFileParser
+RUN mkdir home/jovyan/ThermoRawFileParser
+RUN unzip ThermoRawFileParser.zip -d home/jovyan/ThermoRawFileParser/
 
 # Binder Specific Inst allations
 ENV JUPYTER_ENABLE_LAB=yes
