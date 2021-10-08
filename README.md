@@ -10,7 +10,6 @@ This repository will help accomplish two things:
 
 View interface (non-interactive): [`IODA_MS2Planner.ipynb`](https://nbviewer.jupyter.org/github/lfnothias/IODA_MassSpec/blob/main/IODA_notebooks_welcome.ipynb)
 
-
 We can run this on Binder, click it below
 Binder standard environment -> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/lfnothias/IODA_MassSpec/main?urlpath=lab/tree/IODA_notebooks_welcome.ipynb)
 
@@ -21,6 +20,9 @@ You will need to do two things:
 1. Open `IODA_TOPPAS_mztab_generation.ipynb` to run the feature finding to create the mztab file
 2. Open `IODA_exclusion_from_mztab.ipynb` to create the exclusion file to download
 
+## Binder
+
+Currently, the binder environment is built via the docker file `Binder/Dockerfile`.
 
 ## Testing
 
