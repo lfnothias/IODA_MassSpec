@@ -25,8 +25,8 @@ RUN apt install -y mono-xsp4
 RUN apt update
 
 ## ThermoRawFileParser https://github.com/compomics/ThermoRawFileParser
-RUN wget https://github.com/compomics/ThermoRawFileParser/releases/download/v1.3.4/ThermoRawFileParser.zip --directory-prefix home/jovyan/
-RUN unzip home/jovyan/ThermoRawFileParser.zip -d ThermoRawFileParser
+RUN wget https://github.com/compomics/ThermoRawFileParser/releases/download/v1.3.4/ThermoRawFileParser.zip
+RUN unzip ThermoRawFileParser.zip -d home/jovyan/
 
 # Binder Specific Inst allations
 ENV JUPYTER_ENABLE_LAB=yes
