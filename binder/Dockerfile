@@ -24,11 +24,6 @@ RUN apt install -y mono-complete
 RUN apt install -y mono-xsp4
 RUN apt update
 
-## ThermoRawFileParser https://github.com/compomics/ThermoRawFileParser
-RUN wget https://github.com/compomics/ThermoRawFileParser/releases/download/v1.3.4/ThermoRawFileParser.zip
-RUN mkdir home/jovyan/ThermoRawFileParser
-RUN unzip ThermoRawFileParser.zip -d home/jovyan/ThermoRawFileParser/
-
 # Binder Specific Inst allations
 ENV JUPYTER_ENABLE_LAB=yes
 ARG NB_USER=jovyan
@@ -52,6 +47,11 @@ RUN pip3 install --no-cache-dir jupyterlab
 RUN pip3 install --no-cache-dir jupyterlab
 RUN pip3 install --no-cache-dir jupyterlab-system-monitor
 ENV jupyter lab --notebook-dir=/home/jovyan/
+
+## ThermoRawFileParser https://github.com/compomics/ThermoRawFileParser
+RUN wget https://github.com/compomics/ThermoRawFileParser/releases/download/v1.3.4/ThermoRawFileParser.zip
+RUN mkdir home/jovyan/ThermoRawFileParser
+RUN unzip ThermoRawFileParser.zip -d home/jovyan/ThermoRawFileParser/
 
 # Copying files
 COPY . ${HOME}
