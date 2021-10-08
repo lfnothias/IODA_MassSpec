@@ -56,6 +56,19 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
                 cp4
             except subprocess.CalledProcessError:
                 raise
+    
+    elif input_mzML.endswith(('.raw','.RAW')):
+        logger.info('Thermo RAW file detected')
+        logger.info('This is the input file path: '+str(input_mzML))
+        bashCommand5 = "mono ThermoRawFileParser/ThermoRawFileParser.exe -i="+input_mzML+" --logging=1 --ignoreInstrumentErrors --output_file "+TOPPAS_folder+"/toppas_input/Blank.mzML"
+        logger.info('The file is converting to mzML thanks ThermoRawFileParser v1.3.4, please wait few seconds ...: '+str(input_mzML))
+        logger.info(str(bashCommand5))
+        cp5 = subprocess.run(bashCommand5,shell=True)
+        try:
+            cp5
+        except subprocess.CalledProcessError:
+            raise
+        
     else:
         #Check the file path is correct for local upload
         logger.info('This is the input file path: '+str(input_mzML))
@@ -66,12 +79,13 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
         except subprocess.CalledProcessError:
             raise
     # Error getting the file ! PLEASE VERY THE PATH TO THE FILE OR DOWNLOAD LINK ...
+    
     try:
         f = open(TOPPAS_folder+'/toppas_input/Blank.mzML')
         f.close()
     except subprocess.CalledProcessError:
         logger.info('There was an error getting the file !')
-    logger.info('The mzML file was found')
+    logger.info('The mzML file was found !')
 
     logger.info('Copying the mzML to the OpenMS input folder. File will be renamed internally "Blank.mzML"')
 
