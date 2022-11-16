@@ -260,7 +260,7 @@ def get_all_file_paths(directory,output_zip_path):
     logger.info('All files zipped successfully!')
 
 # Make targeted list from mzTab
-def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, ratio:float, min_intensity_value:int, pretarget_rt_margin:float, posttarget_rt_exclusion_margin:float, window_bin:int):
+def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, ratio:float, min_intensity_value:int, pretarget_rt_margin:float, posttarget_rt_exclusion_margin:float, window_bin:int, min_int_apex_ratio:float):
     os.system('rm -r results_targeted')
     os.system('rm download_results/IODA_targeted_results.zip')
     os.system('mkdir results_targeted')
@@ -332,6 +332,7 @@ def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, rat
     logger.info('   Excluded ion retention time (sec.) = ' + str(rt_window_excluded_ion))
     logger.info('   Pre-target ion retention time margin (sec.) = ' + str(pretarget_rt_margin))
     logger.info('   Post-target ion retention time margin (sec.) = ' + str(posttarget_rt_exclusion_margin))
+    logger.info('   Minimum intensity apex ratio (only Exploris serie) = ' + str(min_int_apex_ratio))
 
     #Parameter for split features
     logger.info('======')
@@ -389,6 +390,7 @@ def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, rat
             generate_Exploris_list(output_filename[:-4]+'_EXCLUSION_BLANK.csv', output_filename[:-4]+'_EXCLUSION_BLANK_Exploris_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
             generate_Exploris_list(output_filename[:-4]+'_EXCLUSION_SHARED.csv', output_filename[:-4]+'_EXCLUSION_SHARED_Exploris_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
             generate_Exploris_list(output_filename[:-4]+'_TARGETED_'+str(x)+'.csv', output_filename[:-4]+'_TARGETED_Exploris_exp_'+str(x)+'.csv', pretarget_rt_margin, posttarget_rt_exclusion_margin)
+            generate_Exploris_list_int(output_filename[:-4]+'_TARGETED_'+str(x)+'.csv', output_filename[:-4]+'_TARGETED_Exploris_int_exp_'+str(x)+'.csv', pretarget_rt_margin, posttarget_rt_exclusion_margin, min_int_apex_ratio)
     logger.info('======')
 
         # Convert the MaxQuant.Live format
@@ -397,6 +399,7 @@ def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, rat
             generate_MQL_list(output_filename[:-4]+'_EXCLUSION_BLANK.csv', output_filename[:-4]+'_EXCLUSION_BLANK_MaxQuantLive_exp_'+str(x)+'.csv', 0, rt_window_excluded_ion)
             generate_MQL_list(output_filename[:-4]+'_EXCLUSION_SHARED.csv', output_filename[:-4]+'_EXCLUSION_SHARED_MaxQuantLive_exp_'+str(x)+'.csv', 0, rt_window_excluded_ion)
             generate_MQL_list(output_filename[:-4]+'_TARGETED_'+str(x)+'.csv', output_filename[:-4]+'_TARGETED_MaxQuantLive_exp_'+str(x)+'.csv', pretarget_rt_margin , posttarget_rt_exclusion_margin)
+            
     logger.info('======')
     logger.info('Cleaning and zipping workflow results files ...')
 
@@ -459,4 +462,4 @@ def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, rat
     print(' ')
 
 if __name__ == "__main__":
-    make_targeted_list_from_mzTab(str(sys.argv[1]),int(sys.argv[2]),float(sys.argv[3]),float(sys.argv[4]),float(sys.argv[5]),int(sys.argv[6]))
+    make_targeted_list_from_mzTab(str(sys.argv[1]),int(sys.argv[2]),float(sys.argv[3]),float(sys.argv[4]),float(sys.argv[5]),int(sys.argv[6]),float(sys.argv[7]))
