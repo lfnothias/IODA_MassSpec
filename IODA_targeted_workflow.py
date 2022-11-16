@@ -392,6 +392,7 @@ def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, rat
             generate_Exploris_list(output_filename[:-4]+'_TARGETED_'+str(x)+'.csv', output_filename[:-4]+'_TARGETED_Exploris_exp_'+str(x)+'.csv', pretarget_rt_margin, posttarget_rt_exclusion_margin)
             generate_Exploris_list_int(output_filename[:-4]+'_TARGETED_'+str(x)+'.csv', output_filename[:-4]+'_TARGETED_Exploris_int_exp_'+str(x)+'.csv', pretarget_rt_margin, posttarget_rt_exclusion_margin, min_int_apex_ratio)
     logger.info('======')
+       
 
         # Convert the MaxQuant.Live format
     logger.info('Converting tables to MaxQuant.Live format ...')
@@ -414,11 +415,11 @@ def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, rat
     os.system('mv results_targeted/*EXCLUSION_SHARED_Exactive* results_targeted/Exactive/exclusion')
     os.system('mv results_targeted/*TARGETED_Exactive* results_targeted/Exactive/targeted')
 
-    #mkdir Exactive
+    #mkdir Exploris
     os.system('mkdir results_targeted/Exploris')
     os.system('mkdir results_targeted/Exploris/exclusion')
     os.system('mkdir results_targeted/Exploris/targeted')
-    # mv files Exactive
+    # mv files Exploris
     os.system('mv results_targeted/*EXCLUSION_BLANK_Exploris* results_targeted/Exploris/exclusion')
     os.system('mv results_targeted/*EXCLUSION_SHARED_Exploris* results_targeted/Exploris/exclusion')
     os.system('mv results_targeted/*TARGETED_Exploris* results_targeted/Exploris/targeted')
