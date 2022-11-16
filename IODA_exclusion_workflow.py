@@ -213,9 +213,11 @@ def make_exclusion_from_mzTabs(input_mzML:int, min_intensity:int, rtexclusionmar
     logger.info('======')
 
     # Convert to XCalibur format
-    logger.info('Preparing list of excluded ions in XCalibur format')
-    generate_QE_list_rt_range(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename,output_filename[:-4]+'_EXCLUSION_LIST_XCalibur.csv')
-    logger.info('======')
+    logger.info('Preparing list of excluded ions in XCalibur format (Exactive serie)')
+    generate_QE_list_rt_range(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_LIST_Exactive.csv')
+    logger.info('Preparing list of excluded ions in XCalibur format (Exploris serie)')
+    generate_Exploris_list_rt_range(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_LIST_Exploris.csv')
+    logger.info('======')  
     logger.info('Preparing list of excluded ions in MaxQuant.Live format')
     generate_MQL_exclusion(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_LIST_MaxQuantLive.txt')
     logger.info('======')
@@ -305,8 +307,10 @@ def make_exclusion_from_mzTab(input_filename:str, min_intensity:int, rtexclusion
     logger.info('======')
 
     # Convert to XCalibur format
-    logger.info('Preparing list of excluded ions in XCalibur format')
-    generate_QE_list_rt_range(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_LIST_XCalibur.csv')
+    logger.info('Preparing list of excluded ions in XCalibur format (Exactive serie)')
+    generate_QE_list_rt_range(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_LIST_Exactive.csv')
+    logger.info('Preparing list of excluded ions in XCalibur format (Exploris serie)')
+    generate_Exploris_list_rt_range(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_LIST_Exploris.csv')
     logger.info('======')
     logger.info('Preparing list of excluded ions in MaxQuant.Live format')
     generate_MQL_exclusion(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_LIST_MaxQuantLive.txt')

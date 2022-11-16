@@ -41,6 +41,34 @@ def generate_QE_list_rt_range(input_table: str, blank_samplename:str, output_fil
     df['Comment'] = df_master['for_comments']
     df.to_csv(output_filename, index = False, sep=',')
 
+# Make a list of XCalibur with retention time range for exclusion
+def generate_Exploris_list_rt_range(input_table: str, blank_samplename:str, output_filename:str):
+    """Format a table with mz, charge, rt_start, rt_end, intensities into a standard QExactive inclusion/exclusion list"""
+    # Prepare the columns
+    df_master = pd.read_csv(input_table, sep=',', header=0)
+    df_master['Start [min]']=(df_master['rt_start'])/60
+    df_master['End [min]']=(df_master['rt_end'])/60
+    #Format to scientific notation the intensity
+    df_master[blank_samplename] = df_master[blank_samplename].astype(float).map(lambda n: '{:.2E}'.format(n))
+
+    #Build a comment (optional)
+    df_master['block1'] = round(df_master['retention_time']*1/60,3)
+    df_master['block2'] = round(df_master['retention_time'],2)
+    df_master['block1'] = df_master['block1'].astype(str)
+    df_master['block2'] = df_master['block2'].astype(str)
+    df_master['for_comments'] = 'Apex = '+df_master['block1']+' min or '+df_master['block2']+' sec, int. = '+ df_master[blank_samplename].astype(str)
+
+    #Make the output table
+    df = pd.DataFrame(data=None)
+    df['Compound'] = df_master['for_comments']
+    df['Formula'] = ''
+    df['Adduct'] = str("(no adduct)")
+    df['m/z'] = df_master["Mass [m/z]"].round(decimals=4)
+    df['z'] = df_master['charge']
+    df["t start (min)"] = df_master["Start [min]"].round(decimals=3)
+    df["t stop (min)"] = df_master["End [min]"].round(decimals=3)
+    df.to_csv(output_filename, index = False, sep=',')  
+    
 # Make an EXCLUSION list for MaxQuant.Live with apex retention time value
 def generate_MQL_exclusion(input_table:str, blank_samplename:str, output_filename:str):
     """Format a table with mz, charge, rt, intensities into a standard MaxQuantLive list"""
