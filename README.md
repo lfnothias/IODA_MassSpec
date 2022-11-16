@@ -10,8 +10,14 @@ This repository will help accomplish two things:
 
 Binder with GESIS server -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/home/jovyan/IODA_notebooks_welcome.ipynb)
 
+Binder with GESIS server [FROZEN] -> [![Binder with GESIS]((https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/53276f8e456d0ab788da3cc9b33059934622e507)
+
 **Interactive interface with Binder**
 Binder standard server -> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/home/jovyan/IODA_notebooks_welcome.ipynb)
+
+Binder standard server [LATEST] -> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/home/jovyan/IODA_notebooks_welcome.ipynb)
+
+Binder standard server [FROZEN] -> [![Binder](https://mybinder.org/v2/gh/lfnothias/IODA_MassSpec/53276f8e456d0ab788da3cc9b33059934622e507)
 
 **View-only interface** (non-interactive): [`IODA_notebooks_welcome.ipynb`](https://nbviewer.jupyter.org/github/lfnothias/IODA_MassSpec/blob/master/IODA_notebooks_welcome.ipynb)
 
