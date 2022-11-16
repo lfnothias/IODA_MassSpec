@@ -375,12 +375,20 @@ def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, rat
 
     logger.info('======')
 
-    # Convert to XCalibur format
-    logger.info('Converting tables to XCalibur format ...')
+    # Convert to Exactive serie format
+    logger.info('Converting tables to XCalibur format (Exactive serie) ...')
     for x in range(1,experiment_number+1):
-            generate_QE_list(output_filename[:-4]+'_EXCLUSION_BLANK.csv', output_filename[:-4]+'_EXCLUSION_BLANK_XCalibur_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
-            generate_QE_list(output_filename[:-4]+'_EXCLUSION_SHARED.csv', output_filename[:-4]+'_EXCLUSION_SHARED_XCalibur_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
-            generate_QE_list(output_filename[:-4]+'_TARGETED_'+str(x)+'.csv', output_filename[:-4]+'_TARGETED_XCalibur_exp_'+str(x)+'.csv', pretarget_rt_margin, posttarget_rt_exclusion_margin)
+            generate_QE_list(output_filename[:-4]+'_EXCLUSION_BLANK.csv', output_filename[:-4]+'_EXCLUSION_BLANK_Exactive_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
+            generate_QE_list(output_filename[:-4]+'_EXCLUSION_SHARED.csv', output_filename[:-4]+'_EXCLUSION_SHARED_Exactive_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
+            generate_QE_list(output_filename[:-4]+'_TARGETED_'+str(x)+'.csv', output_filename[:-4]+'_TARGETED_Exactive_exp_'+str(x)+'.csv', pretarget_rt_margin, posttarget_rt_exclusion_margin)
+    logger.info('======')
+    
+    # Convert to Exploris serie format
+    logger.info('Converting tables to XCalibur format (Exploris serie) ...')
+    for x in range(1,experiment_number+1):
+            generate_Exploris_list(output_filename[:-4]+'_EXCLUSION_BLANK.csv', output_filename[:-4]+'_EXCLUSION_BLANK_Exploris_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
+            generate_Exploris_list(output_filename[:-4]+'_EXCLUSION_SHARED.csv', output_filename[:-4]+'_EXCLUSION_SHARED_Exploris_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
+            generate_Exploris_list(output_filename[:-4]+'_TARGETED_'+str(x)+'.csv', output_filename[:-4]+'_TARGETED_Exploris_exp_'+str(x)+'.csv', pretarget_rt_margin, posttarget_rt_exclusion_margin)
     logger.info('======')
 
         # Convert the MaxQuant.Live format
@@ -394,20 +402,29 @@ def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, rat
 
     # Cleaning files first
 
-    #mkdir XCalibur
-    os.system('mkdir results_targeted/XCalibur')
-    os.system('mkdir results_targeted/XCalibur/exclusion')
-    os.system('mkdir results_targeted/XCalibur/targeted')
-    # mv files XCalibur
-    os.system('mv results_targeted/*EXCLUSION_BLANK_XCalibur* results_targeted/XCalibur/exclusion')
-    os.system('mv results_targeted/*EXCLUSION_SHARED_XCalibur* results_targeted/XCalibur/exclusion')
-    os.system('mv results_targeted/*TARGETED_XCalibur* results_targeted/XCalibur/targeted')
+    #mkdir Exactive
+    os.system('mkdir results_targeted/Exactive')
+    os.system('mkdir results_targeted/Exactive/exclusion')
+    os.system('mkdir results_targeted/Exactive/targeted')
+    # mv files Exactive
+    os.system('mv results_targeted/*EXCLUSION_BLANK_Exactive* results_targeted/Exactive/exclusion')
+    os.system('mv results_targeted/*EXCLUSION_SHARED_Exactive* results_targeted/Exactive/exclusion')
+    os.system('mv results_targeted/*TARGETED_Exactive* results_targeted/Exactive/targeted')
 
-    #mkdir XCalibur
+    #mkdir Exactive
+    os.system('mkdir results_targeted/Exploris')
+    os.system('mkdir results_targeted/Exploris/exclusion')
+    os.system('mkdir results_targeted/Exploris/targeted')
+    # mv files Exactive
+    os.system('mv results_targeted/*EXCLUSION_BLANK_Exploris* results_targeted/Exploris/exclusion')
+    os.system('mv results_targeted/*EXCLUSION_SHARED_Exploris* results_targeted/Exploris/exclusion')
+    os.system('mv results_targeted/*TARGETED_Exploris* results_targeted/Exploris/targeted')
+    
+    #mkdir MQL
     os.system('mkdir results_targeted/MaxQuantLive')
     os.system('mkdir results_targeted/MaxQuantLive/exclusion')
     os.system('mkdir results_targeted/MaxQuantLive/targeted')
-    # mv files XCalibur
+    # mv files MQL
     os.system('mv results_targeted/*EXCLUSION_BLANK_MaxQuantLive* results_targeted/MaxQuantLive/exclusion')
     os.system('mv results_targeted/*EXCLUSION_SHARED_MaxQuantLive* results_targeted/MaxQuantLive/exclusion')
     os.system('mv results_targeted/*TARGETED_MaxQuantLive* results_targeted/MaxQuantLive/targeted')
