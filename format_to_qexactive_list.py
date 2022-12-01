@@ -157,6 +157,7 @@ def generate_Exploris_list(input_table: str, output_filename:str, pretarget_rt_e
     df['Adduct'] = str("(no adduct)")
     df['m/z'] = df_master["Mass [m/z]"].round(decimals=4)
     df['z'] = df_master['charge']
+    df['charge'] = df['charge'].replace([0], 1) #if 0 sequence is buging
     df["RT Time (min)"] = df_master["block1"]
     df["Window (min)"] = ((pretarget_rt_exclusion_time+posttarget_rt_exclusion_time)/60)
     df["Window (min)"] = round(df["Window (min)"],4)
@@ -186,6 +187,7 @@ def generate_Exploris_list_int(input_table: str, output_filename:str,
     df['Adduct'] = str("(no adduct)")
     df['m/z'] = df_master["Mass [m/z]"].round(decimals=4)
     df['z'] = df_master['charge']
+    df['charge'] = df['charge'].replace([0], 1) #if 0 sequence is buging
     df['Intensity Threshold'] = df_master.iloc[: , -1]
     df['Intensity Threshold'] = df_master['Intensity Threshold']*min_int_apex_ratio
     df["RT Time (min)"] = df_master["block1"]
