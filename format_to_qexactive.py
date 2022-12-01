@@ -65,6 +65,7 @@ def generate_Exploris_list_rt_range(input_table: str, blank_samplename:str, outp
     df['Adduct'] = str("(no adduct)")
     df['m/z'] = df_master["Mass [m/z]"].round(decimals=4)
     df['z'] = df_master['charge']
+    df['charge'] = df['charge'].replace([0], 1) #if 0 sequence is buging
     df["t start (min)"] = df_master["Start [min]"].round(decimals=3)
     df["t stop (min)"] = df_master["End [min]"].round(decimals=3)
     df.to_csv(output_filename, index = False, sep=',')  
