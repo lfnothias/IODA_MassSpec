@@ -21,12 +21,13 @@ def generate_QE_list_rt_range(input_table: str, blank_samplename:str, output_fil
     #Build a comment (optional)
     df_master['block1'] = round(df_master['retention_time']*1/60,3)
     df_master['block2'] = round(df_master['retention_time'],2)
+
+    df_master.loc[df_master['Start [min]'] < df_master['block1'].min(), 'Start [min]'] = df_master['block1'].min()  ### This to prevent negative value
+    df_master.loc[df_master['End [min]'] > df_master['block1'].max(),'End [min]'] = df_master['block1'].max()  ### This to prevent value higher than the acquisition method
+
     df_master['block1'] = df_master['block1'].astype(str)
     df_master['block2'] = df_master['block2'].astype(str)
     df_master['for_comments'] = 'Apex = '+df_master['block1']+' (min) or '+df_master['block2']+' (sec), int. = '+ df_master[blank_samplename].astype(str)
-
-    df_master['Start [min]'][df_master['Start [min]'] < df_master['block1'].min()] = df_master['block1'].min()  ### This to prevent negative value
-    df_master['End [min]'][df_master['End [min]'] > df_master['block1'].max()] = df_master['block1'].max()  ### This to prevent value higher than the acquisition method
 
     #Make the output table
     df = pd.DataFrame(data=None)
@@ -57,12 +58,14 @@ def generate_Exploris_list_rt_range(input_table: str, blank_samplename:str, outp
     #Build a comment (optional)
     df_master['block1'] = round(df_master['retention_time']*1/60,3)
     df_master['block2'] = round(df_master['retention_time'],2)
+
+    df_master.loc[df_master['Start [min]'] < df_master['block1'].min(), 'Start [min]'] = df_master['block1'].min()  ### This to prevent negative value
+    df_master.loc[df_master['End [min]'] > df_master['block1'].max(),'End [min]'] = df_master['block1'].max()  ### This to prevent value higher than the acquisition method
+
     df_master['block1'] = df_master['block1'].astype(str)
     df_master['block2'] = df_master['block2'].astype(str)
     df_master['for_comments'] = 'Apex = '+df_master['block1']+' min or '+df_master['block2']+' sec, int. = '+ df_master[blank_samplename].astype(str)
 
-    df_master['Start [min]'][df_master['Start [min]'] < df_master['block1'].min()] = df_master['block1'].min()  ### This to prevent negative value
-    df_master['End [min]'][df_master['End [min]'] > df_master['block1'].max()] = df_master['block1'].max()  ### This to prevent value higher than the acquisition method
 
     #Make the output table
     df = pd.DataFrame(data=None)
