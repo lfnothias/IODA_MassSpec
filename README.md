@@ -8,7 +8,7 @@ This repository will help accomplish two things:
 
 ## Running on your own data
 
-Binder with GESIS server [LATEST] -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/2303_pyopenms?urlpath=lab/tree/home/jovyan/IODA_notebooks_welcome.ipynb)
+Binder with GESIS server [LATEST] -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/2303_pyopenms?urlpath=lab/tree/IODA_notebooks_welcome.ipynb)
 
 Binder with GESIS server [FROZEN] -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/53276f8e456d0ab788da3cc9b33059934622e507)
 
