@@ -279,7 +279,7 @@ def make_exclusion_from_mzTab_or_df(input_filepath:str, min_intensity:int, rtexc
     
         # Concatenating the tables from narrow and large features:
         output_filename = os.path.join("results/intermediate/", os.path.basename(input_filepath)[:-6] + "_converted.csv")
-        logger.info(output_filename)
+        #logger.info(output_filename)
         df = pd.read_csv(output_filename, sep=',')
         
         
