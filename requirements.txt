@@ -11,5 +11,4 @@ jupyterlab_launcher
 pymzml
 nbresuse
 plotly
-pyopenms
 pymzML
