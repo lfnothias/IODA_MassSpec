@@ -158,7 +158,7 @@ def plot_targets_per_groups(output_filename:str, table_list: str, column:str, ou
     color_list = color_list + color_list + color_list
     for x in range(len(table_list)):
         table = pd.read_csv(table_list[x], sep=',', header=0)
-        plt.scatter(column, sample, data=table, marker='o', color='', edgecolors=color_list[x], s=3, alpha=0.45,linewidth=0.7)
+        plt.scatter(column, sample, data=table, s=3, marker='o', c='lightskyblue', edgecolors=color_list[x], alpha=0.45,linewidth=0.7)
         Label = ['Exp. '+str(x+1)+', n = '+ str(table.shape[0])+ ', median = '+ "{0:.2e}".format(table[sample].median()) + ', mean = '+ "{0:.2e}".format(table[sample].mean())]
         Labels.append(Label)
 
@@ -183,13 +183,13 @@ def plot_targets_per_groups_w_shared(output_filename:str, table_list: str, colum
     color_list = color_list + color_list + color_list
     for x in range(len(table_list)):
         table = pd.read_csv(table_list[x], sep=',', header=0)
-        plt.scatter(column, sample, data=table, marker='o', color='', edgecolors=color_list[x], s=3, alpha=0.45,linewidth=0.6)
+        plt.scatter(column, sample, data=table, marker='.', c='orange', edgecolors=color_list[x], s=3, alpha=0.45,linewidth=0.6)
         Label = ['Exp. '+str(x+1)+', n = '+ str(table.shape[0])+ ', median = '+ "{0:.2e}".format(table[sample].median()) + ', mean = '+ "{0:.2e}".format(table[sample].mean())]
         Labels.append(Label)
 
     # Show shared features between blank and sample
     table_blank = pd.read_csv(input_filename_blank, sep=',', header=0)
-    plt.scatter(column, blank, data=table_blank, marker='.', color='black', s=1, alpha=0.8)
+    plt.scatter(column, blank, data=table_blank, marker='v', color='black', s=1, alpha=0.8)
     Label2 = ['Blank (excluded ion), n = '+ str(table_blank.shape[0])+ ', median = '+ "{0:.2e}".format(table_blank[blank].median())  + ', mean = '+ "{0:.2e}".format(table_blank[blank].mean())]
     Labels.append(Label2)
 
@@ -220,13 +220,13 @@ def plot_targets_per_groups_w_shared_gradient(output_filename:str, table_list: s
         table[table.columns[-1]]=(((table[table.columns[-1]]-table[table.columns[-1]].min())/20)/(table[table.columns[-1]].max()-table[table.columns[-1]].min()))*20
         #table[table.columns[-1]] = table[table.columns[-1]] /100000
         gradient = table[table.columns[-1]].to_list()
-        plt.scatter('retention_time','Mass [m/z]', data=table, marker = "o", facecolors='', color='', edgecolors=color_list[x], s = gradient, alpha=0.8, linewidth=0.5)
+        plt.scatter('retention_time','Mass [m/z]', data=table, s = gradient, c='orange', marker = "o", facecolors='', edgecolors=color_list[x], alpha=0.8, linewidth=0.5)
         Label = ['Exp. '+str(x+1)+', n = '+ str(table.shape[0])+ ', median = '+ "{0:.2e}".format(table[sample].median()) + ', mean = '+ "{0:.2e}".format(table[sample].mean())]
         Labels.append(Label)
 
     # Show shared features between blank and sample
     table_blank = pd.read_csv(input_filename_blank, sep=',', header=0)
-    plt.scatter('retention_time','Mass [m/z]', data=table_blank, marker='.', color='black', facecolors='', s = 2, alpha=0.8)
+    plt.scatter('retention_time','Mass [m/z]', data=table_blank, marker='v', c='black', facecolors='', s = 2, alpha=0.8)
     Label2 = ['Blank (excluded ion), n = '+ str(table_blank.shape[0])+ ', median = '+ "{0:.2e}".format(table_blank[blank].median())  + ', mean = '+ "{0:.2e}".format(table_blank[blank].mean())]
     Labels.append(Label2)
 
@@ -260,7 +260,7 @@ def get_all_file_paths(directory,output_zip_path):
     logger.info('All files zipped successfully!')
 
 # Make targeted list from mzTab
-def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, ratio:float, min_intensity_value:int, pretarget_rt_margin:float, posttarget_rt_exclusion_margin:float, window_bin:int, min_int_apex_ratio:float):
+def make_targeted_list_from_feature_table_or_mztab(input_filepath:int, experiment_number:int, ratio:float, min_intensity_value:int, pretarget_rt_margin:float, posttarget_rt_exclusion_margin:float, window_bin:int, min_int_apex_ratio:float):
     os.system('rm -r results_targeted')
     os.system('rm download_results/IODA_targeted_results.zip')
     os.system('mkdir results_targeted')
@@ -268,51 +268,33 @@ def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, rat
     os.system('rm results/logfile.txt')
     logfile('results_targeted/logfile.txt')
 
-    logger.info('STARTING THE IODA targeted-from-mzTab WORKFLOW')
-    if input_filename.startswith('http'):
-        logger.info('File path was specified by the user')
-        pass
-    elif input_filename == 'OpenMS_generated':
-        logger.info('The mzTab was generated with the IODA-OpenMS workflow')
-        path_input_folder = "TOPPAS_Workflow/toppas_output/TOPPAS_out/Targeted_MzTab/"
-        mzTab_file = os.listdir("TOPPAS_Workflow/toppas_output/TOPPAS_out/Targeted_MzTab/")[0]
-        input_filename = path_input_folder+mzTab_file
+    logger.info('STARTING THE IODA targeted-from-FeatureTable WORKFLOW')
+    if input_filepath == 'pyOpenMS_generated':
+        logger.info('The feature table was generated with the IODA-OpenMS workflow')
+        consensus_df_path = "OpenMS_workflow/OpenMS_output/consensus.csv"
+        logger.info('This is the output file path: '+str(consensus_df_path))
+        
+    elif input_filepath.endswith('mzTab'):
+        logger.info('An mzTab was provided')
+        consensus_df_path = "OpenMS_workflow/OpenMS_output/consensus.csv"
+        convert_mzTab_to_table(input_filepath, consensus_df_path)
+        logger.info('This is the output file path of the converted mzTab: '+str(consensus_df_path))
+             
     else:
-        logger.info("the input_filename variable should be a valid path/download link or must be: 'OpenMS_generated', when using the OpenMS workflow online")
-
+        logger.info('The feature table was provided by the user ')
+        consensus_df_path = input_filepath
+        logger.info('This is the output file path: '+str(consensus_df_path))
+        
     now = datetime.datetime.now()
     logger.info(now)
-
+    
     output_dir = 'results_targeted'
     logger.info('======')
-    logger.info('Getting the mzTab')
-    if input_filename.startswith('http'):
-        if 'google' in input_filename:
-            logger.info('This is the Google Drive download link: '+str(input_filename))
-            url_id = input_filename.split('/', 10)[5]
-            prefixe_google_download = 'https://drive.google.com/uc?export=download&id='
-            input_filename = prefixe_google_download+url_id
-            output_filename = output_dir+'/Converted_mzTab.csv'
-
-        else:
-            output_filename = output_dir+'/'+input_filename.split('/', 10)[-1][:-6]+'.csv'
-            logger.info('This is the input file path: '+str(input_filename))
-            logger.info('This is the output file path: '+str(output_filename))
-
-    else:
-        output_filename = output_dir+'/'+input_filename.split('/', 10)[-1][:-6]+'.csv'
-        logger.info('This is the input file path: '+str(input_filename))
-        logger.info('This is the output file path: '+str(output_filename))
-
-
-    # Convert the mzTab into a Table
-    logger.info('======')
-    logger.info('Converting mzTab to intermediate table format ...')
-    convert_mzTab_to_table(input_filename,output_filename)
+    logger.info('Getting the input file')
     logger.info('======')
 
     # Read the table to get the filenames
-    feature_table = pd.read_csv(output_filename)
+    feature_table = pd.read_csv(consensus_df_path)
     samplename = feature_table.columns[-1]
     logger.info('Assumed reference sample filename: '+samplename)
     blank_samplename = feature_table.columns[-2]
@@ -344,62 +326,62 @@ def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, rat
     # Running the table processing
     logger.info('Processing the ions ...')
     logger.info('======')
-    make_exclusion_list_blank(output_filename, blank_samplename)
-    make_exclusion_list_shared(output_filename, blank_samplename, samplename)
+    make_exclusion_list_blank(consensus_df_path, blank_samplename)
+    make_exclusion_list_shared(consensus_df_path, blank_samplename, samplename)
     logger.info('======')
-    make_targeted_list(output_filename, blank_samplename, samplename, ratio, min_intensity_value)
+    make_targeted_list(consensus_df_path, blank_samplename, samplename, ratio, min_intensity_value)
     logger.info('======')
 
     # Split the tables for multiple experiment_number
     logger.info('Splitting the target ions per intensity in a given retention time bin')
     from IODA_split_features import split_features
-    split_features(output_filename[:-4]+'_TARGETED.csv', output_filename[:-4]+'_TARGETED.csv', samplename, window_bin, experiment_number)
-    split_table = pd.read_csv(output_filename[:-4]+'_TARGETED_1.csv', sep=',', header=0)
+    split_features(consensus_df_path[:-4]+'_TARGETED.csv', consensus_df_path[:-4]+'_TARGETED.csv', samplename, window_bin, experiment_number)
+    split_table = pd.read_csv(consensus_df_path[:-4]+'_TARGETED_1.csv', sep=',', header=0)
     logger.info('   Number of target ions per experiment n = '+str(split_table.shape[0]))
     logger.info('======')
 
     # Generate the filename list
     table_list = []
     for x in range(1,experiment_number+1):
-        table_list.append(output_filename[:-4]+'_TARGETED_'+str(x)+'.csv')
+        table_list.append(consensus_df_path[:-4]+'_TARGETED_'+str(x)+'.csv')
 
 
     # === OUTPUT FILES BELOW + LOG ====
     logger.info('Plotting the ions ... please wait ...')
-    plot_targets_exclusion(output_filename[:-4]+'_EXCLUSION_SHARED.csv', blank_samplename, 'retention_time', 'Intensity distribution of ions excluded')
-    plot_targets_exclusion(output_filename[:-4]+'_EXCLUSION_SHARED.csv', blank_samplename, 'Mass [m/z]', 'Intensity distribution of ions excluded')
-    plot_targets_per_groups(output_filename, table_list, 'retention_time', 'TARGETED', samplename, experiment_number)
-    plot_targets_per_groups(output_filename, table_list, 'Mass [m/z]', 'TARGETED', samplename, experiment_number)
-    plot_targets_per_groups_w_shared(output_filename, table_list, 'retention_time','TARGETED', output_filename[:-4]+'_EXCLUSION_SHARED.csv', samplename, blank_samplename, experiment_number)
-    plot_targets_per_groups_w_shared(output_filename, table_list, 'Mass [m/z]','TARGETED', output_filename[:-4]+'_EXCLUSION_SHARED.csv', samplename, blank_samplename, experiment_number)
-    plot_targets_per_groups_w_shared_gradient(output_filename, table_list,'TARGETED', output_filename[:-4]+'_EXCLUSION_SHARED.csv', samplename, blank_samplename, experiment_number)
+    plot_targets_exclusion(consensus_df_path[:-4]+'_EXCLUSION_SHARED.csv', blank_samplename, 'retention_time', 'Intensity distribution of ions excluded')
+    plot_targets_exclusion(consensus_df_path[:-4]+'_EXCLUSION_SHARED.csv', blank_samplename, 'Mass [m/z]', 'Intensity distribution of ions excluded')
+    plot_targets_per_groups(consensus_df_path, table_list, 'retention_time', 'TARGETED', samplename, experiment_number)
+    plot_targets_per_groups(consensus_df_path, table_list, 'Mass [m/z]', 'TARGETED', samplename, experiment_number)
+    plot_targets_per_groups_w_shared(consensus_df_path, table_list, 'retention_time','TARGETED', consensus_df_path[:-4]+'_EXCLUSION_SHARED.csv', samplename, blank_samplename, experiment_number)
+    plot_targets_per_groups_w_shared(consensus_df_path, table_list, 'Mass [m/z]','TARGETED', consensus_df_path[:-4]+'_EXCLUSION_SHARED.csv', samplename, blank_samplename, experiment_number)
+    plot_targets_per_groups_w_shared_gradient(consensus_df_path, table_list,'TARGETED', consensus_df_path[:-4]+'_EXCLUSION_SHARED.csv', samplename, blank_samplename, experiment_number)
 
     logger.info('======')
 
     # Convert to Exactive serie format
     logger.info('Converting tables to XCalibur format (Exactive serie) ...')
     for x in range(1,experiment_number+1):
-            generate_QE_list(output_filename[:-4]+'_EXCLUSION_BLANK.csv', output_filename[:-4]+'_EXCLUSION_BLANK_Exactive_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
-            generate_QE_list(output_filename[:-4]+'_EXCLUSION_SHARED.csv', output_filename[:-4]+'_EXCLUSION_SHARED_Exactive_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
-            generate_QE_list(output_filename[:-4]+'_TARGETED_'+str(x)+'.csv', output_filename[:-4]+'_TARGETED_Exactive_exp_'+str(x)+'.csv', pretarget_rt_margin, posttarget_rt_exclusion_margin)
+            generate_QE_list(consensus_df_path[:-4]+'_EXCLUSION_BLANK.csv', consensus_df_path[:-4]+'_EXCLUSION_BLANK_Exactive_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
+            generate_QE_list(consensus_df_path[:-4]+'_EXCLUSION_SHARED.csv', consensus_df_path[:-4]+'_EXCLUSION_SHARED_Exactive_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
+            generate_QE_list(consensus_df_path[:-4]+'_TARGETED_'+str(x)+'.csv', consensus_df_path[:-4]+'_TARGETED_Exactive_exp_'+str(x)+'.csv', pretarget_rt_margin, posttarget_rt_exclusion_margin)
     logger.info('======')
     
     # Convert to Exploris serie format
     logger.info('Converting tables to XCalibur format (Exploris serie) ...')
     for x in range(1,experiment_number+1):
-            generate_Exploris_list(output_filename[:-4]+'_EXCLUSION_BLANK.csv', output_filename[:-4]+'_EXCLUSION_BLANK_Exploris_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
-            generate_Exploris_list(output_filename[:-4]+'_EXCLUSION_SHARED.csv', output_filename[:-4]+'_EXCLUSION_SHARED_Exploris_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
-            generate_Exploris_list(output_filename[:-4]+'_TARGETED_'+str(x)+'.csv', output_filename[:-4]+'_TARGETED_Exploris_exp_'+str(x)+'.csv', pretarget_rt_margin, posttarget_rt_exclusion_margin)
-            generate_Exploris_list_int(output_filename[:-4]+'_TARGETED_'+str(x)+'.csv', output_filename[:-4]+'_TARGETED_Exploris_int_exp_'+str(x)+'.csv', pretarget_rt_margin, posttarget_rt_exclusion_margin, min_int_apex_ratio)
+            generate_Exploris_list(consensus_df_path[:-4]+'_EXCLUSION_BLANK.csv', consensus_df_path[:-4]+'_EXCLUSION_BLANK_Exploris_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
+            generate_Exploris_list(consensus_df_path[:-4]+'_EXCLUSION_SHARED.csv', consensus_df_path[:-4]+'_EXCLUSION_SHARED_Exploris_exp_'+str(x)+'.csv', rt_window_excluded_ion/2, rt_window_excluded_ion/2)
+            generate_Exploris_list(consensus_df_path[:-4]+'_TARGETED_'+str(x)+'.csv', consensus_df_path[:-4]+'_TARGETED_Exploris_exp_'+str(x)+'.csv', pretarget_rt_margin, posttarget_rt_exclusion_margin)
+            generate_Exploris_list_int(consensus_df_path[:-4]+'_TARGETED_'+str(x)+'.csv', consensus_df_path[:-4]+'_TARGETED_Exploris_int_exp_'+str(x)+'.csv', pretarget_rt_margin, posttarget_rt_exclusion_margin, min_int_apex_ratio)
     logger.info('======')
        
 
         # Convert the MaxQuant.Live format
     logger.info('Converting tables to MaxQuant.Live format ...')
     for x in range(1,experiment_number+1):
-            generate_MQL_list(output_filename[:-4]+'_EXCLUSION_BLANK.csv', output_filename[:-4]+'_EXCLUSION_BLANK_MaxQuantLive_exp_'+str(x)+'.csv', 0, rt_window_excluded_ion)
-            generate_MQL_list(output_filename[:-4]+'_EXCLUSION_SHARED.csv', output_filename[:-4]+'_EXCLUSION_SHARED_MaxQuantLive_exp_'+str(x)+'.csv', 0, rt_window_excluded_ion)
-            generate_MQL_list(output_filename[:-4]+'_TARGETED_'+str(x)+'.csv', output_filename[:-4]+'_TARGETED_MaxQuantLive_exp_'+str(x)+'.csv', pretarget_rt_margin , posttarget_rt_exclusion_margin)
+            generate_MQL_list(consensus_df_path[:-4]+'_EXCLUSION_BLANK.csv', consensus_df_path[:-4]+'_EXCLUSION_BLANK_MaxQuantLive_exp_'+str(x)+'.csv', 0, rt_window_excluded_ion)
+            generate_MQL_list(consensus_df_path[:-4]+'_EXCLUSION_SHARED.csv', consensus_df_path[:-4]+'_EXCLUSION_SHARED_MaxQuantLive_exp_'+str(x)+'.csv', 0, rt_window_excluded_ion)
+            generate_MQL_list(consensus_df_path[:-4]+'_TARGETED_'+str(x)+'.csv', consensus_df_path[:-4]+'_TARGETED_MaxQuantLive_exp_'+str(x)+'.csv', pretarget_rt_margin , posttarget_rt_exclusion_margin)
             
     logger.info('======')
     logger.info('Cleaning and zipping workflow results files ...')
@@ -407,31 +389,50 @@ def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, rat
     # Cleaning files first
 
     #mkdir Exactive
+
+    dir_path = "OpenMS_workflow/OpenMS_output"
+    old_pattern = "consensus_"
+    new_pattern = samplename[:-5]+'_blank_'
+
+    # loop through files in the directory
+    for filename in os.listdir(dir_path):
+        # check if it's a file (not a folder)
+        if os.path.isfile(os.path.join(dir_path, filename)):
+            # split the file path into directory, base filename, and extension
+            base_filename, ext = os.path.splitext(filename)
+            # replace the string pattern in the base filename
+            new_base_filename = base_filename.replace(old_pattern, new_pattern)
+            # create the new file path
+            new_filepath = os.path.join(dir_path, new_base_filename + ext)
+            old_filepath = os.path.join(dir_path, filename)
+            # rename the file
+            os.rename(old_filepath, new_filepath)
+        
     os.system('mkdir results_targeted/Exactive')
     os.system('mkdir results_targeted/Exactive/exclusion')
     os.system('mkdir results_targeted/Exactive/targeted')
     # mv files Exactive
-    os.system('mv results_targeted/*EXCLUSION_BLANK_Exactive* results_targeted/Exactive/exclusion')
-    os.system('mv results_targeted/*EXCLUSION_SHARED_Exactive* results_targeted/Exactive/exclusion')
-    os.system('mv results_targeted/*TARGETED_Exactive* results_targeted/Exactive/targeted')
+    os.system('mv OpenMS_workflow/OpenMS_output/*EXCLUSION_BLANK_Exactive* results_targeted/Exactive/exclusion')
+    os.system('mv OpenMS_workflow/OpenMS_output/*EXCLUSION_SHARED_Exactive* results_targeted/Exactive/exclusion')
+    os.system('mv OpenMS_workflow/OpenMS_output/*TARGETED_Exactive* results_targeted/Exactive/targeted')
 
     #mkdir Exploris
     os.system('mkdir results_targeted/Exploris')
     os.system('mkdir results_targeted/Exploris/exclusion')
     os.system('mkdir results_targeted/Exploris/targeted')
     # mv files Exploris
-    os.system('mv results_targeted/*EXCLUSION_BLANK_Exploris* results_targeted/Exploris/exclusion')
-    os.system('mv results_targeted/*EXCLUSION_SHARED_Exploris* results_targeted/Exploris/exclusion')
-    os.system('mv results_targeted/*TARGETED_Exploris* results_targeted/Exploris/targeted')
+    os.system('mv OpenMS_workflow/OpenMS_output/*EXCLUSION_BLANK_Exploris* results_targeted/Exploris/exclusion')
+    os.system('mv OpenMS_workflow/OpenMS_output/*EXCLUSION_SHARED_Exploris* results_targeted/Exploris/exclusion')
+    os.system('mv OpenMS_workflow/OpenMS_output/*TARGETED_Exploris* results_targeted/Exploris/targeted')
     
     #mkdir MQL
     os.system('mkdir results_targeted/MaxQuantLive')
     os.system('mkdir results_targeted/MaxQuantLive/exclusion')
     os.system('mkdir results_targeted/MaxQuantLive/targeted')
     # mv files MQL
-    os.system('mv results_targeted/*EXCLUSION_BLANK_MaxQuantLive* results_targeted/MaxQuantLive/exclusion')
-    os.system('mv results_targeted/*EXCLUSION_SHARED_MaxQuantLive* results_targeted/MaxQuantLive/exclusion')
-    os.system('mv results_targeted/*TARGETED_MaxQuantLive* results_targeted/MaxQuantLive/targeted')
+    os.system('mv OpenMS_workflow/OpenMS_output/*EXCLUSION_BLANK_MaxQuantLive* results_targeted/MaxQuantLive/exclusion')
+    os.system('mv OpenMS_workflow/OpenMS_output/*EXCLUSION_SHARED_MaxQuantLive* results_targeted/MaxQuantLive/exclusion')
+    os.system('mv OpenMS_workflow/OpenMS_output/*TARGETED_MaxQuantLive* results_targeted/MaxQuantLive/targeted')
 
     # mkdir intermediate files
     os.system('mkdir results_targeted/intermediate_files')
@@ -439,26 +440,24 @@ def make_targeted_list_from_mzTab(input_filename:int, experiment_number:int, rat
     os.system('mkdir results_targeted/intermediate_files/exclusion')
     os.system('mkdir results_targeted/intermediate_files/targeted')
     os.system('mkdir results_targeted/plots')
+    
     # mv plots
-    os.system('mv results_targeted/scatter_plot* results_targeted/plots')
-    os.system('mv results_targeted/*TARGETED_scatter_plot* results_targeted/plots')
-    os.system('mv experiment_blank_shared_MZ_TARGETED_scatter_view.png results_targeted/intermediate_files/')
-    os.system('mv experiment_blank_shared_RT_TARGETED_scatter_view.png results_targeted/intermediate_files/')
-    os.system('mv experiment_blank_shared_MZ_RT_TARGETED_scatter_view.png results_targeted/intermediate_files/')
+    os.system('mv OpenMS_workflow/OpenMS_output/*TARGETED_scatter_plot* results_targeted/plots')
 
     # mv intermediate files
-    os.system('mv results_targeted/*EXCLUSION_BLANK* results_targeted/intermediate_files/exclusion')
-    os.system('mv results_targeted/*EXCLUSION_SHARED* results_targeted/intermediate_files/exclusion')
-    os.system('mv results_targeted/*TARGETED_* results_targeted/intermediate_files/targeted')
+    os.system('mv OpenMS_workflow/OpenMS_output/*EXCLUSION_BLANK* results_targeted/intermediate_files/exclusion')
+    os.system('mv OpenMS_workflow/OpenMS_output/*EXCLUSION_SHARED* results_targeted/intermediate_files/exclusion')
+    os.system('mv OpenMS_workflow/OpenMS_output/*TARGETED_* results_targeted/intermediate_files/targeted')
 
-    # mv plots
-    os.system('mv '+output_filename+' results_targeted/intermediate_files/converted')
-    os.system('mv results_targeted/logfile.txt results_targeted/intermediate_files/')
+    # mv logr
+    os.system('mv OpenMS_workflow/OpenMS_output/*TARGETED.csv results_targeted/intermediate_files/converted')
+    os.system('mv OpenMS_workflow/OpenMS_output/*blank.csv results_targeted/intermediate_files/converted')
+    os.system('mv OpenMS_workflow/logfile_IODA_OpenMS_from_mzML.txt results_targeted/intermediate_files/')
 
     get_all_file_paths('results_targeted','download_results/IODA_targeted_results.zip')
 
     logger.info('======')
-    logger.info('END OF THE IODA-targeted-from-mzTab WORKFLOW')
+    logger.info('END OF THE IODA-targeted-from-mzML WORKFLOW')
     logger.info('======')
     print(' ')
 
