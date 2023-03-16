@@ -282,7 +282,8 @@ def make_targeted_list_from_feature_table_or_mztab(input_filepath:int, experimen
              
     else:
         logger.info('The feature table was provided by the user ')
-        consensus_df_path = input_filepath
+        os.system('mv '+input_filepath+' OpenMS_workflow/OpenMS_output/consensus.csv')
+        consensus_df_path = "OpenMS_workflow/OpenMS_output/consensus.csv"
         logger.info('This is the output file path: '+str(consensus_df_path))
         
     now = datetime.datetime.now()
