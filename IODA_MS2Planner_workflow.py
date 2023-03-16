@@ -8,7 +8,6 @@ import os
 import matplotlib.pyplot as plt
 from io import StringIO
 import warnings
-from pandas.core.common import SettingWithCopyWarning
 from format_to_qexactive_list import *
 from zipfile import ZipFile
 from logzero import logger, logfile
@@ -21,7 +20,7 @@ import pathlib
 
 def convert_mzTab_to_table(input_filename: str,output_filename: str):
     """Take an mzTab containing two samples, output a table with mz, charge, rt, intensities."""
-    df = pd.read_csv(input_filename, sep='\t', error_bad_lines=False, warn_bad_lines=False)
+    df = pd.read_csv(input_filename, sep='\t', on_bad_lines='skip')
 
     # Get the metadata
     metadata = []
@@ -619,7 +618,7 @@ def run_MS2Planner_curve_from_mzTab(input_filename:int, num_path:int, intensity_
 ### MS2Planner
 # This parse one line from the MS2Planner output and create a output table per path. The rows to skip define which line/path is parsed.
 def MS2Planner_format(input_filename: str, output_filename: str, rows_to_skip:int):
-    df_path = pd.read_csv(input_filename, sep=' ', header=None, skiprows=rows_to_skip, error_bad_lines=False, warn_bad_lines=False)
+    df_path = pd.read_csv(input_filename, sep=' ', header=None, skiprows=rows_to_skip, on_bad_lines='skip')
 
     #Make a list for the first row
     df_path_list = df_path.iloc[0].values.tolist()
@@ -698,6 +697,7 @@ def run_MS2Planner_curve(input_filename:str, output_filename:str, intensity_thre
     cmd_curve = ('python3 MS2Planner/path_finder.py curve '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -infile_raw '+str(input_filename_curve)+' -intensity_accu '+str(intensity_accu)+' -restriction '+str(rt_tolerance_curve)+' '+str(mz_tolerance_curve)+' -isolation '+str(isolation)+' -delay '+str(delay)+' -min_scan '+str(min_scan)+' -max_scan '+str(max_scan)+' -cluster '+str(cluster))
     logger.info('Command: '+cmd_curve)
     logger.info('MS2Planner in Curve mode can take up to 10 minutes to complete ... please wait')
+    logger.info('Output of MS2Planner: '+output_filename)
     try:
         cp0 = subprocess.run(cmd_curve,shell=True)
         cp0

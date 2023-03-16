@@ -4,9 +4,6 @@ import sys
 import os
 from io import StringIO
 import warnings
-from pandas.core.common import SettingWithCopyWarning
-
-warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 
 # Make a list of XCalibur with retention time range for exclusion
 def generate_QE_list_rt_range(input_table: str, blank_samplename:str, output_filename:str):
