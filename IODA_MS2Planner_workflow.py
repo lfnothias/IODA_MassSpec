@@ -118,7 +118,7 @@ def get_all_file_paths(directory,output_zip_path):
     logger.info('All files zipped successfully!')
 
 # Run the MS2Planner workflow with baseline method
-def run_MS2Planner_baseline_from_mzTab(input_filename:int, num_path:int, intensity_ratio:float, intensity_threshold:float, win_len:float, isolation:float, delay:float, rt_margin:float):
+def run_MS2Planner_baseline_from_mzTab(input_filename:int, num_path:int, intensity_ratio:float, intensity_threshold:float, win_len:float, isolation:float, delay:float, rt_margin:float, max_same_RT:float):
 
     output_dir = 'results_targeted_MS2Planner_baseline'
     os.system('rm -r '+output_dir)
@@ -187,11 +187,20 @@ def run_MS2Planner_baseline_from_mzTab(input_filename:int, num_path:int, intensi
     logger.info('    Retention time window (min.) for binning target ions = ' +str(win_len))
     logger.info('    Isolation window (m/z) = ' +str(isolation))
     logger.info('    Retention time margin (sec.) = ' +str(delay))
-    experiements = num_path
-    logger.info('    Number of iterative experiment(s) = ' + str(experiements))
+    experiments = num_path
+    logger.info('    Number of iterative experiment(s) = ' + str(experiments))
     logger.info('User-defined parameters for the output')
-    logger.info('    Retention time margin for target ion list (sec. = ' + str(rt_margin))
+    logger.info('    Retention time margin for target ion list (sec. = ' + str(rt_margin)+')')
     logger.info('======')
+
+    # Here we limit the number of feature with the same RT to the value max_same_RT
+    initial_nb_features = feature_table.shape[0]-1
+    feature_table = feature_table.sort_values(by=['retention_time', samplename], ascending=[True, False])
+    feature_table = feature_table.groupby('retention_time').head(max_same_RT)
+    feature_table.to_csv(output_filename[:-4]+'_filtered.csv', sep=',', index=False)
+    afterfiltering_nb_features = feature_table.shape[0]-1
+    print(str(initial_nb_features-afterfiltering_nb_features)+' features dropped with the same RT from an initial number of '
+          +str(initial_nb_features)+', with a maximum number of feature with the same RT = '+str(max_same_RT))
 
     # Running the table processing
     logger.info('Running MS2Planner in Baseline mode ...')
@@ -203,7 +212,7 @@ def run_MS2Planner_baseline_from_mzTab(input_filename:int, num_path:int, intensi
     except:
         pass
     try:
-        run_MS2Planner_baseline(output_filename, output_filename[:-4]+'_MS2Planner.csv', intensity_threshold, intensity_ratio, num_path, win_len, isolation, delay)
+        run_MS2Planner_baseline(output_filename[:-4]+'_filtered.csv', output_filename[:-4]+'_filtered_MS2Planner.csv', intensity_threshold, intensity_ratio, num_path, win_len, isolation, delay)
     except:
         logger.info('There was an issue with the MS2Planner ! See the log below.')
         f = open('path_finder.log', 'r')
@@ -216,7 +225,8 @@ def run_MS2Planner_baseline_from_mzTab(input_filename:int, num_path:int, intensi
     file_contents = f.read()
     logger.info(file_contents)
 
-    Test_MS2Planner_Output = pathlib.Path(output_filename[:-4]+'_MS2Planner.csv')
+    Test_MS2Planner_Output = pathlib.Path(output_filename[:-4]+'_filtered_MS2Planner_path_1.csv')
+
     try:
         if Test_MS2Planner_Output.exists ():
             logger.info("MS2Planner Path output found")
@@ -229,8 +239,36 @@ def run_MS2Planner_baseline_from_mzTab(input_filename:int, num_path:int, intensi
         raise
 
     logger.info('Preparing results ...')
+    
+
+    def count_files_with_pattern(directory, pattern):
+        count = 0
+        for filename in os.listdir(directory):
+            if pattern in filename:
+                count += 1
+        return count
+
+    directory = os.path.dirname(output_filename)  # Replace with the path to your folder
+    pattern = 'MS2Planner_path'  # Replace with the pattern you want to search for
+    count = count_files_with_pattern(directory, pattern)
+
     min_scan = 0 #Hardcoded to keep the same def function with Curve mode. Parameter only used in Curve mode.
-    make_MS2Planner_targeted_lists_from_table(output_filename[:-4]+'_MS2Planner.csv', rt_margin, min_scan)
+
+    for i in range(count):
+        make_MS2Planner_targeted_lists_from_table(output_filename[:-4]+'_filtered_MS2Planner_path_'+str(i+1)+'.csv', rt_margin, min_scan)
+    
+    table_list_MS2Planner = []
+    for x in range(count):
+        table_list_MS2Planner.append(output_filename[:-4]+'_filtered_MS2Planner_path_'+str(x+1)+'.csv')
+
+    try:
+        print(table_list_MS2Planner)
+        make_plot_MS2Planner_RT_mz(table_list_MS2Planner, directory)
+        make_plot_MS2Planner_mz_int(table_list_MS2Planner, directory)
+        make_plot_MS2Planner_RT_int(table_list_MS2Planner, directory)
+    except:
+        raise
+
     logger.info('======')
 
     logger.info('Cleaning and zipping workflow results files ...')
@@ -240,13 +278,13 @@ def run_MS2Planner_baseline_from_mzTab(input_filename:int, num_path:int, intensi
     #mkdir XCalibur
     os.system('mkdir '+output_dir+'/XCalibur')
     # mv files XCalibur
-    os.system('mv '+output_dir+'/*formatted_QE* '+output_dir+'/XCalibur')
+    os.system('mv '+output_dir+'/*_QE* '+output_dir+'/XCalibur')
 
     #mkdir MQL
     os.system('mkdir '+output_dir+'/MaxQuantLive')
 
     # mv files MQL
-    os.system('mv '+output_dir+'/*formatted_MQL* '+output_dir+'/MaxQuantLive')
+    os.system('mv '+output_dir+'/*_MQL* '+output_dir+'/MaxQuantLive')
 
     # mkdir intermediate files
     os.system('mkdir '+output_dir+'/intermediate_files')
@@ -254,11 +292,10 @@ def run_MS2Planner_baseline_from_mzTab(input_filename:int, num_path:int, intensi
     os.system('mkdir '+output_dir+'/log')
 
     # mv
-    os.system('mv '+output_dir+'/*scatter_plot* '+output_dir+'/plots')
+    os.system('mv '+output_dir+'/*_plot_* '+output_dir+'/plots')
     os.system('mv '+output_dir+'/logfile.txt '+output_dir+'/log')
     os.system('cp path_finder.log '+output_dir+'/log/path_finder_baseline.log')
     os.system('mv '+output_dir+'/*.csv '+output_dir+'/intermediate_files')
-    os.system('mv '+output_dir+'/*.txt '+output_dir+'/intermediate_files')
 
     get_all_file_paths(output_dir,'download_'+output_dir+'/IODA_MS2Planner_baseline_results.zip')
 
@@ -639,49 +676,20 @@ def MS2Planner_format(input_filename: str, output_filename: str, rows_to_skip:in
     #Make a dataframe
     target_table = pd.DataFrame(target_list)
     target_table = target_table.rename(columns={0: 'Mass [m/z]',1: 'mz_isolation',2: 'duration',3: 'rt_start',4: 'rt_end', 5: 'intensity', 6: 'rt_apex',7: 'charge'})
-
     logger.info('Valid target ions in path'+str(rows_to_skip+1)+' = '+str(target_table.shape[0]))
-
     target_table.to_csv(output_filename, sep=',', index=False)
 
 # This parse MS2Planner output file and create output tables formatted for XCalibur and MaxQuant.live
 def make_MS2Planner_targeted_lists_from_table(input_filename:str,rt_margin:float, transient_time:float):
-    os.system("sed -i 's/\t/ /g' "+input_filename)
-    logger.info('File processed: '+input_filename)
+    logger.info('File processed and converted to Orbitrap list: '+input_filename)
     logger.info('======')
-    with open(input_filename) as file:
-        counter = -1
-        for line in file:
-            try:
-                counter += 1
-                output_filename = input_filename[:-4]+"_"+str(counter+1)+'_formatted.txt'
-                #Take the list and make a table
-                MS2Planner_format(input_filename,output_filename, counter)
-                logger.info('Formatting to XCalibur format ...')
-                generate_QE_list_from_MS2Planner(output_filename, output_filename[:-4]+'_QE.csv',rt_margin)
-                #Format for MaxQuant.Live targeted experiment
-                logger.info('Formatting for MaxQuant.Live ...')
-                generate_MQL_list_from_MS2Planner(output_filename, output_filename[:-4]+'_MQL.txt',rt_margin)
-                generate_MQL_list_from_MS2Planner_MaxIT(output_filename, output_filename[:-4]+'_MQL_variableMaxIT.txt', transient_time)
-                logger.info('=======')
-            except:
-                raise
-
-    table_list_MS2Planner = []
-    for x in range(0,counter+1):
-        table_list_MS2Planner.append(input_filename[:-4]+"_"+str(x+1)+'_formatted.txt')
-
-    output_dir = output_filename.split('/', 10)[0]
-    logger.info(output_dir)
-
-    try:
-        make_plot_MS2Planner1(table_list_MS2Planner,output_dir)
-        make_plot_MS2Planner2(table_list_MS2Planner,output_dir)
-        make_plot_MS2Planner3(table_list_MS2Planner,output_dir)
-        make_plot_MS2Planner4(table_list_MS2Planner,output_dir)
-    except:
-        raise
-
+    logger.info(input_filename[:-4])
+    generate_QE_list_from_MS2Planner(input_filename, input_filename[:-4]+'_QE.csv',rt_margin)
+    #Format for MaxQuant.Live targeted experiment
+    generate_MQL_list_from_MS2Planner(input_filename, input_filename[:-4]+'_MQL.txt',rt_margin)
+    generate_MQL_list_from_MS2Planner_MaxIT(input_filename, input_filename[:-4]+'_MQL_variableMaxIT.txt', transient_time)
+    logger.info('=======')
+    
 
 def run_MS2Planner_baseline(input_filename:str, output_filename:str, intensity_threshold:float, intensity_ratio:float, num_path:int, win_len:float, isolation:float, delay:float):
     cmd_baseline = ('python3 MS2Planner/path_finder.py baseline '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -win_len '+str(win_len)+' -isolation '+str(isolation)+' -delay '+str(delay))
@@ -705,10 +713,86 @@ def run_MS2Planner_curve(input_filename:str, output_filename:str, intensity_thre
         logger.info('ERROR running MS2Planner ...')
 
 #MS2Planner generate mz / rt figures
+
+
+
+def make_plot_MS2Planner_RT_mz(table_list_MS2Planner, output_dir):
+    colors = ['blue', 'violet', 'orange', 'red', 'yellow','green','purple','black','brown','pink','grey']
+    labels = []
+    scaling_factor = 50
+    min_size = 2
+
+    #labels.append('Intensity scaling factor: '+str(scaling_factor))
+
+    for i, table_path in enumerate(table_list_MS2Planner):
+        table = pd.read_csv(table_path, sep=',', header=0)
+
+        sizes = (table['intensity'] / table['intensity'].max()) * scaling_factor
+        sizes = sizes.apply(lambda x: max(x, min_size))
+
+        plt.scatter('rt_apex', 'Mass [m/z]', data=table, marker='o', color=colors[i % len(colors)],  edgecolors='k', linewidths=0.2, s=sizes, alpha=0.8)
+
+        label = f"Inj. {i + 1}, n = {table.shape[0]}, median = {table['intensity'].median():.2e}, mean = {table['intensity'].mean():.2e}"
+        labels.append(label)
+        plt.ylabel('Mass [m/z]')
+        plt.xlabel('Ret. time apex (s)')
+        plt.legend(labels=labels, fontsize=4)
+        plt.title('Distribution of MS2Planner targets. Node size shows intensity with a scale factor of '+str(scaling_factor), fontsize=8)
+        plt.savefig(output_dir + '/'+str(i+1)+'_plot_mz_rt.png', dpi=300)
+
+    plt.savefig(output_dir + '/all_plot_mz_rt.png', dpi=300)
+    plt.close()
+
+def make_plot_MS2Planner_mz_int(table_list_MS2Planner, output_dir):
+    colors = ['blue', 'violet', 'orange', 'red', 'yellow','green','purple','black','brown','pink','grey']
+    labels = []
+
+    for i, table_path in enumerate(table_list_MS2Planner):
+        table = pd.read_csv(table_path, sep=',', header=0)
+
+        plt.scatter('Mass [m/z]', 'intensity', data=table, marker='o', color=colors[i % len(colors)],  edgecolors='k', linewidths=0.2, s=2, alpha=0.8)
+
+        label = f"Inj. {i + 1}, n = {table.shape[0]}, median = {table['intensity'].median():.2e}, mean = {table['intensity'].mean():.2e}"
+        labels.append(label)
+        
+        plt.yscale("log")
+        plt.ylabel('Intensity')
+        plt.xlabel('Mass [m/z]')
+        plt.legend(labels=labels, fontsize=4)
+        plt.title('Distribution of MS2Planner targets.', fontsize=8)
+        plt.savefig(output_dir + '/'+str(i+1)+'_plot_mz_int.png', dpi=300)
+
+    plt.savefig(output_dir + '/all_plot_mz_int.png', dpi=300)
+    plt.close()
+
+def make_plot_MS2Planner_RT_int(table_list_MS2Planner, output_dir):
+    colors = ['blue', 'violet', 'orange', 'red', 'yellow','green','purple','black','brown','pink','grey']
+    labels = []
+
+    for i, table_path in enumerate(table_list_MS2Planner):
+        table = pd.read_csv(table_path, sep=',', header=0)
+
+        plt.scatter('rt_apex', 'intensity', data=table, marker='o', color=colors[i % len(colors)],  edgecolors='k', linewidths=0.2, s=2, alpha=0.8)
+
+        label = f"Inj. {i + 1}, n = {table.shape[0]}, median = {table['intensity'].median():.2e}, mean = {table['intensity'].mean():.2e}"
+        labels.append(label)
+
+        plt.yscale("log")
+        plt.xlabel('Ret. time apex (s)')
+        plt.ylabel('Intensity')
+        plt.legend(labels=labels, fontsize=4)
+        plt.title('Distribution of MS2Planner targets', fontsize=8)
+        plt.savefig(output_dir + '/'+str(i+1)+'_plot_RT_int.png', dpi=300)
+
+    plt.savefig(output_dir + '/all_plot_rt_int.png', dpi=300)
+    plt.close()
+
+
 def make_plot_MS2Planner1(table_list_MS2Planner, output_dir):
     Labels = []
     if len(table_list_MS2Planner) >= 1:
         table0 = pd.read_csv(table_list_MS2Planner[0], sep=',', header=0)
+        #print(table0.head(5))
         plt.scatter('rt_apex','Mass [m/z]', data=table0, marker='o', color='blue',s=2, alpha=0.6)
         Label1 = ['Inj. 1, n = '+ str(table0.shape[0])+ ', median = '+ "{0:.2e}".format(table0['intensity'].median()) + ', mean = '+ "{0:.2e}".format(table0['intensity'].mean())]
         Labels.append(Label1)
