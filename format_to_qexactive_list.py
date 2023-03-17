@@ -43,9 +43,7 @@ def generate_QE_list_rt_range(input_table: str, blank_samplename:str, output_fil
     df['Comment'] = df_master['for_comments']
     df.to_csv(output_filename, index = False, sep=',')
 
-    del df
-    del df_master
-    
+
 # Make a list of XCalibur with retention time range for exclusion
 def generate_Exploris_list_rt_range(input_table: str, blank_samplename:str, output_filename:str):
     """Format a table with mz, charge, rt_start, rt_end, intensities into a standard QExactive inclusion/exclusion list"""
@@ -78,8 +76,6 @@ def generate_Exploris_list_rt_range(input_table: str, blank_samplename:str, outp
     df["t stop (min)"] = df_master["End [min]"].round(decimals=3)
     df.to_csv(output_filename, index = False, sep=',')  
     
-    del df
-    del df_master
     
 # Make an EXCLUSION list for MaxQuant.Live with apex retention time value
 def generate_MQL_exclusion(input_table:str, blank_samplename:str, output_filename:str):
@@ -116,17 +112,18 @@ def generate_MQL_exclusion(input_table:str, blank_samplename:str, output_filenam
 
     df_out.to_csv(output_filename, index=None, sep='\t')
 
-    del df
-    del df2
-    del df_out
     
 # For targeted experiment (no range, just apex)
 def generate_QE_list(input_table: str, output_filename:str, pretarget_rt_exclusion_time:float, posttarget_rt_exclusion_time:float):
     """Format a table with mz, charge, rt, intensities into a standard QExactive inclusion/exclusion list"""
     # Prepare the columns
     df_master = pd.read_csv(input_table)
-    df_master['Start [min]']=(df_master['retention_time']-(pretarget_rt_exclusion_time))/60
-    df_master['End [min]']=(df_master['retention_time']+(posttarget_rt_exclusion_time))/60
+
+    df_master['retention_time]']=df_master['retention_time']/60
+    threshold = df_master['retention_time'].max() + posttarget_rt_exclusion_time 
+    df_master.loc[df_master['retention_time'] > pretargeted_rt_exclusion_time, 'Start [min]'] = (df_master['retention_time'] - pre_target_rt_exclusion_time)
+    df_master.loc[df_master['retention_time'] < threshold, 'End [min]'] = (df_master['retention_time'] + posttargeted_rt_exclusion_time)
+
     #Build a comment (optional) -> deactivate for lighter output
     #df_master['block1'] = round(df_master['retention_time']*1/60,3)
     #df_master['block2'] = round(df_master['retention_time'],2)
@@ -152,18 +149,20 @@ def generate_QE_list(input_table: str, output_filename:str, pretarget_rt_exclusi
 
     df.to_csv(output_filename, index = False, sep=',')
     
-    del df
-    del df_master
     
 def generate_Exploris_list(input_table: str, output_filename:str, pretarget_rt_exclusion_time:float, posttarget_rt_exclusion_time:float):
     """Format a table with mz, charge, rt, intensities into a Exploris serie inclusion/exclusion list"""
     # Prepare the columns
     df_master = pd.read_csv(input_table)
-    df_master['Start [min]']=(df_master['retention_time']-(pretarget_rt_exclusion_time))/60
-    df_master['End [min]']=(df_master['retention_time']+(posttarget_rt_exclusion_time))/60
+    
+    df_master['retention_time]']=df_master['retention_time']/60
+    threshold = df_master['retention_time'].max() + posttarget_rt_exclusion_time 
+    df_master.loc[df_master['retention_time'] > pretargeted_rt_exclusion_time, 'Start [min]'] = (df_master['retention_time'] - pre_target_rt_exclusion_time)
+    df_master.loc[df_master['retention_time'] < threshold, 'End [min]'] = (df_master['retention_time'] + posttargeted_rt_exclusion_time)
+    
     #Build a comment (optional) -> deactivate for lighter output
-    df_master['block1'] = round(df_master['retention_time']*1/60,3)
-    df_master['block2'] = round(df_master['retention_time'],2)
+    df_master['block1'] = round(df_master['retention_time'],3)
+    df_master['block2'] = round(df_master['retention_time']*1/60,2)
     df_master['block1'] = df_master['block1'].astype(str)
     df_master['block2'] = df_master['block2'].astype(str)
     df_master['for_comments'] = 'Apex = '+df_master['block1']+' (min) '+df_master['block2']+' (sec)'
@@ -191,11 +190,15 @@ def generate_Exploris_list_int(input_table: str, output_filename:str,
     # Prepare the columns
     df_master = pd.read_csv(input_table)
     df_master['Intensity Threshold'] = df_master.iloc[: , -1]
-    df_master['Start [min]']=(df_master['retention_time']-(pretarget_rt_exclusion_time))/60
-    df_master['End [min]']=(df_master['retention_time']+(posttarget_rt_exclusion_time))/60
+
+    df_master['retention_time]']=df_master['retention_time']/60
+    threshold = df_master['retention_time'].max() + posttarget_rt_exclusion_time 
+    df_master.loc[df_master['retention_time'] > pretargeted_rt_exclusion_time, 'Start [min]'] = (df_master['retention_time'] - pre_target_rt_exclusion_time)
+    df_master.loc[df_master['retention_time'] < threshold, 'End [min]'] = (df_master['retention_time'] + posttargeted_rt_exclusion_time)
+    
     #Build a comment (optional) -> deactivate for lighter output
-    df_master['block1'] = round(df_master['retention_time']*1/60,3)
-    df_master['block2'] = round(df_master['retention_time'],2)
+    df_master['block1'] = round(df_master['retention_time'],3)
+    df_master['block2'] = round(df_master['retention_time']*1/60,2)
     df_master['block1'] = df_master['block1'].astype(str)
     df_master['block2'] = df_master['block2'].astype(str)
     df_master['for_comments'] = 'Apex = '+df_master['block1']+' (min) '+df_master['block2']+' (sec)'
@@ -215,8 +218,6 @@ def generate_Exploris_list_int(input_table: str, output_filename:str,
     df["Window (min)"] = round(df["Window (min)"],4)
     df.to_csv(output_filename, index = False, sep=',')
     
-    del df
-    del df_master
     
 # For targeted experiment
 def generate_MQL_list(input_table:str, output_filename:str, pretarget_rt_exclusion_time:float, posttarget_rt_exclusion_time:float):
@@ -251,16 +252,17 @@ def generate_MQL_list(input_table:str, output_filename:str, pretarget_rt_exclusi
     df_out.to_csv(output_filename, index=None, sep=',')
 
     
-
-## PathFinder below
+## MS2Planner below
 def generate_QE_list_from_MS2Planner(input_table: str, output_filename:str, rt_margin:float):
     """Format a table with mz, charge, rt_start, rt_end, intensities into a standard QExactive inclusion/exclusion list"""
     # Prepare the columns
     df_master = pd.read_csv(input_table, sep=',', header=0)
-    # We extend the retention time range for target from X percent of the peak duration. Percent is user provided.
-    # We extend by retention range start by X*0.25 percent and increase the retention end by X percent.
-    df_master['Start [min]']=(df_master['rt_apex']-rt_margin)/60
-    df_master['End [min]']=(df_master['rt_apex']+rt_margin)/60
+    df_master['rt_apex'] = pd.to_numeric(df_master['rt_apex'], errors='coerce')
+
+    threshold = df_master['rt_end'].max() + rt_margin
+    df_master.loc[df_master['rt_start'] > (rt_margin*2), 'Start [min]'] = (df_master['rt_start'] - rt_margin)/60
+    df_master.loc[df_master['rt_end'] < threshold, 'End [min]'] = (df_master['rt_end'] + rt_margin)/60
+
     #Format to scientific notation the intensity
     df_master['intensity'] = df_master['intensity'].astype(float).map(lambda n: '{:.2E}'.format(n))
 
@@ -286,13 +288,9 @@ def generate_QE_list_from_MS2Planner(input_table: str, output_filename:str, rt_m
     df['MSX ID'] = '' #Can be empty ONLY INCLUSION
     df['Comment'] = df_master['for_comments']
     df.to_csv(output_filename, index = False, sep=',')
-
-    del df
-    del df_master
     
 def generate_MQL_list_from_MS2Planner(input_table:str, output_filename:str, rt_margin:float):
     """Format a table with mz, charge, rt, intensities into a standard MaxQuantLive list"""
-
     #Mass [m/z]',1: 'mz_isolation',2: 'duration',3: 'rt_start',4: 'rt_end',5: 'intensity'})
     df = pd.read_csv(input_table)
     df2 = df[['Mass [m/z]','duration','rt_start','rt_end','intensity','rt_apex','charge']]
@@ -326,13 +324,9 @@ def generate_MQL_list_from_MS2Planner(input_table:str, output_filename:str, rt_m
     
     df_out.to_csv(output_filename, index=None, sep='\t')
     
-    del df
-    del df2
-    del df_out
     
 def generate_MQL_list_from_MS2Planner_MaxIT(input_table:str, output_filename:str, transient_time:float):
     """Format a table with mz, charge, rt, intensities into a standard MaxQuantLive list"""
-
     #Mass [m/z]',1: 'mz_isolation',2: 'duration',3: 'rt_start',4: 'rt_end',5: 'intensity'})
     df = pd.read_csv(input_table)
     df2 = df[['Mass [m/z]','duration','rt_start','rt_end','intensity','rt_apex','charge']]
@@ -365,7 +359,3 @@ def generate_MQL_list_from_MS2Planner_MaxIT(input_table:str, output_filename:str
     df_out.rename(columns={'placeholder':''}, inplace=True)
     
     df_out.to_csv(output_filename, index=None, sep='\t') 
-
-    del df
-    del df2
-    del df_out
