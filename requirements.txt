@@ -6,9 +6,9 @@ vdom
 jupyter_contrib_nbextensions
 logzero
 scipy
-wincertstore
 jupyterlab_launcher
 pymzml
 nbresuse
 plotly
 pymzML
+jupyterlab
