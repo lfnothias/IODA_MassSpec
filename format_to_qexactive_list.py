@@ -121,8 +121,8 @@ def generate_QE_list(input_table: str, output_filename:str, pretarget_rt_exclusi
 
     df_master['retention_time]']=df_master['retention_time']/60
     threshold = df_master['retention_time'].max() + posttarget_rt_exclusion_time 
-    df_master.loc[df_master['retention_time'] > pretargeted_rt_exclusion_time, 'Start [min]'] = (df_master['retention_time'] - pre_target_rt_exclusion_time)
-    df_master.loc[df_master['retention_time'] < threshold, 'End [min]'] = (df_master['retention_time'] + posttargeted_rt_exclusion_time)
+    df_master.loc[df_master['retention_time'] > pretarget_rt_exclusion_time, 'Start [min]'] = (df_master['retention_time'] - pretarget_rt_exclusion_time)
+    df_master.loc[df_master['retention_time'] < threshold, 'End [min]'] = (df_master['retention_time'] + posttarget_rt_exclusion_time)
 
     #Build a comment (optional) -> deactivate for lighter output
     #df_master['block1'] = round(df_master['retention_time']*1/60,3)
@@ -157,8 +157,8 @@ def generate_Exploris_list(input_table: str, output_filename:str, pretarget_rt_e
     
     df_master['retention_time]']=df_master['retention_time']/60
     threshold = df_master['retention_time'].max() + posttarget_rt_exclusion_time 
-    df_master.loc[df_master['retention_time'] > pretargeted_rt_exclusion_time, 'Start [min]'] = (df_master['retention_time'] - pre_target_rt_exclusion_time)
-    df_master.loc[df_master['retention_time'] < threshold, 'End [min]'] = (df_master['retention_time'] + posttargeted_rt_exclusion_time)
+    df_master.loc[df_master['retention_time'] > pretarget_rt_exclusion_time, 'Start [min]'] = (df_master['retention_time'] - pretarget_rt_exclusion_time)
+    df_master.loc[df_master['retention_time'] < threshold, 'End [min]'] = (df_master['retention_time'] + posttarget_rt_exclusion_time)
     
     #Build a comment (optional) -> deactivate for lighter output
     df_master['block1'] = round(df_master['retention_time'],3)
@@ -193,8 +193,8 @@ def generate_Exploris_list_int(input_table: str, output_filename:str,
 
     df_master['retention_time]']=df_master['retention_time']/60
     threshold = df_master['retention_time'].max() + posttarget_rt_exclusion_time 
-    df_master.loc[df_master['retention_time'] > pretargeted_rt_exclusion_time, 'Start [min]'] = (df_master['retention_time'] - pre_target_rt_exclusion_time)
-    df_master.loc[df_master['retention_time'] < threshold, 'End [min]'] = (df_master['retention_time'] + posttargeted_rt_exclusion_time)
+    df_master.loc[df_master['retention_time'] > pretarget_rt_exclusion_time, 'Start [min]'] = (df_master['retention_time'] - pretarget_rt_exclusion_time)
+    df_master.loc[df_master['retention_time'] < threshold, 'End [min]'] = (df_master['retention_time'] + posttarget_rt_exclusion_time)
     
     #Build a comment (optional) -> deactivate for lighter output
     df_master['block1'] = round(df_master['retention_time'],3)
@@ -262,6 +262,15 @@ def generate_QE_list_from_MS2Planner(input_table: str, output_filename:str, rt_m
     threshold = df_master['rt_end'].max() + rt_margin
     df_master.loc[df_master['rt_start'] > (rt_margin*2), 'Start [min]'] = (df_master['rt_start'] - rt_margin)/60
     df_master.loc[df_master['rt_end'] < threshold, 'End [min]'] = (df_master['rt_end'] + rt_margin)/60
+
+    # Find the minimum value in the 'rt_start' column that is greater than 0
+    # and assign it to the 'min_size' variable
+    min_size = df_master.loc[df_master['rt_start'] > 0, 'rt_start'].min()
+
+    # Apply a lambda function to the 'rt_start' column in the dataframe (df_master)
+    # This function replaces any value in the 'rt_start' column smaller than 'min_size' with 'min_size'
+    df_master['rt_start'] = df_master['rt_start'].apply(lambda x: max(x, min_size))
+
 
     #Format to scientific notation the intensity
     df_master['intensity'] = df_master['intensity'].astype(float).map(lambda n: '{:.2E}'.format(n))
