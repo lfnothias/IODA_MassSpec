@@ -18,17 +18,15 @@ This repository offers a collection of notebooks and scripts to run Iterative Op
 4. Run the IODA experiments on the mass spectrometer.
 
 
-## Running on your own data
+## Running on your own data with Binder
+
+**Interactive interface with Binder** 
 
 Start the notebook on the cloud with Binder (GESIS server) -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/2303_pyopenms?urlpath=lab/tree/IODA_notebooks_welcome.ipynb)
-
-Binder with GESIS server [FROZEN] -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/53276f8e456d0ab788da3cc9b33059934622e507)
 
 **Interactive interface with Binder**
 
 Binder standard server [LATEST] -> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/home/jovyan/IODA_notebooks_welcome.ipynb)
-
-Binder standard server [FROZEN] -> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/lfnothias/IODA_MassSpec/53276f8e456d0ab788da3cc9b33059934622e507)
 
 **View-only interface** (non-interactive): [`IODA_notebooks_welcome.ipynb`](https://nbviewer.jupyter.org/github/lfnothias/IODA_MassSpec/blob/master/IODA_notebooks_welcome.ipynb)
 
@@ -47,13 +45,3 @@ Unit tests are run using github actions. To run them manually:
 ```make test-unit```
 
 The actual tests are in the ```test``` directory.
-
-## Running the Docker in Linux
-
-Run the following:
-
-`make build-standalone`
-
-`make run_standalone_notebook`
-
-Access the notebook at `localhost:9000`
