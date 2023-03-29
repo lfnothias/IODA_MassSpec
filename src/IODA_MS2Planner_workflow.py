@@ -19,74 +19,7 @@ import pathlib
 def process_input_table(input_filename: str, output_filename: str):
     """Take an MZmine3 or an mzTab containing two samples, output a table with mz, charge, rt, intensities."""
     
-    if input_filename.endswith('.csv'):
-        print("Input file is a MZmine3 feature table")
-        
-        # Process the MZmine3 table
-        table = pd.read_csv(input_filename, index_col=False, on_bad_lines='skip')
-            
-        cols_to_drop = ['row ID', 'row ion mobility','row ion mobility unit','row CCS','correlation group ID','annotation network number','partners','neutral M mass', 'auto MS2 verify','identified by n=']
-        for col in cols_to_drop:
-            if col in table.columns:
-                table.drop(col, axis=1, inplace=True)
-            else:
-                print(f"Column {col} not found. This supports MZmine3 feature table")
-        
-        table.drop(table.columns[table.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
-        # Replace MZmine adducts into charge
-        def replace_best_ion(best_ion):
-            if pd.isnull(best_ion) or best_ion != best_ion:
-                return 0
-            if ']2+' in best_ion:
-                return '2'
-            elif ']+' in best_ion:
-                return '1'
-            elif ']2-' in best-ion:
-                return '-1'
-            elif ']1-' in best-ion:
-                return '-1'
-            else:
-                return '0'
-
-        table['best ion'] = table['best ion'].apply(lambda x: replace_best_ion(x))
-        table = table.rename(columns={'row m/z': 'Mass [m/z]'})
-        table = table.rename(columns={'best ion': 'charge'})
-        table = table.rename(columns={'row retention time': 'retention_time'})
-        #Convert min into seconds for MS2Planner
-        table['retention_time'] = table['retention_time']*60
-
-        #Detection of blank
-        #print('#Deducing the blank sample by comparing the sum of feature intensity between samples')
-
-        # Get all columns containing 'Peak area' in their name
-        peak_area_cols = table.filter(like='Peak area')
-
-        # Loop through each column and calculate its sum
-        sums = {}
-        for col in peak_area_cols:
-            sums[col] = table[col].sum()
-
-        # Find the column with the highest sum
-        highest_sum_col = max(sums, key=sums.get)
-        smallest_sum_col = min(sums, key=sums.get)
-
-        logger.info('- For sample ' + str(smallest_sum_col) + ', the sum of feature intensities = ' + '{:.2e}'.format(sums[smallest_sum_col]))
-        logger.info('- For sample ' + str(highest_sum_col) + ', the sum of feature intensities = ' + '{:.2e}'.format(sums[highest_sum_col]))
-        logger.info('- The blank sample is assumed to be '+str(smallest_sum_col)+' in the feature table')
-        logger.info('- The sample is assumed to be '+str(highest_sum_col)+' in the feature table')
-        table = table.fillna(0).sort_values('retention_time')
-
-        # Define the new order of columns
-        new_order = ['Mass [m/z]', 'retention_time', 'charge', smallest_sum_col, highest_sum_col]
-
-        # Reorder the columns using reindex
-        table = table.reindex(columns=new_order)
-
-        table.to_csv(output_filename, sep=',', index=False)
-        
-        return highest_sum_col, smallest_sum_col
-    
-    elif input_filename.endswith('.mzTab'):
+    if input_filename.endswith('.mzTab'):
         print("Input file is an mzTab")
 
         df = pd.read_csv(input_filename, sep='\t', on_bad_lines='skip')
@@ -149,6 +82,7 @@ def process_input_table(input_filename: str, output_filename: str):
             table.rename(columns={'peptide_abundance_study_variable[2]':Filename1}, inplace=True)
             highest_sum_col = Filename1
             smallest_sum_col = Filename2
+            
         elif column1_sum <= column2_sum:
         #    logger.info('- The blank sample is assumed to be '+str(Filename1)+' in the mzTab-M')
         #    logger.info('- The samples is assumed to be '+str(Filename2)+' in the mzTab-M')
@@ -160,6 +94,111 @@ def process_input_table(input_filename: str, output_filename: str):
         table.rename(columns={'mass_to_charge':"Mass [m/z]"}, inplace=True)
 
         table = table.fillna(0).sort_values('retention_time')
+        table.to_csv(output_filename, sep=',', index=False)
+        
+        return highest_sum_col, smallest_sum_col
+
+    elif input_filename.endswith('MS2Planner.csv'):
+        print("Input file is a consensus table from pyOpenMS")
+        
+        # Process the MZmine3 table
+        table = pd.read_csv(input_filename, index_col=False, on_bad_lines='skip')
+      
+        #Detection of blank
+        #print('#Deducing the blank sample by comparing the sum of feature intensity between samples')
+
+        # Get all columns containing 'Peak area' in their name
+        peak_area_cols = table.filter(like='mzML')
+
+        # Loop through each column and calculate its sum
+        sums = {}
+        for col in peak_area_cols:
+            sums[col] = table[col].sum()
+
+        # Find the column with the highest sum
+        highest_sum_col = max(sums, key=sums.get)
+        smallest_sum_col = min(sums, key=sums.get)
+
+        logger.info('- For sample ' + str(smallest_sum_col) + ', the sum of feature intensities = ' + '{:.2e}'.format(sums[smallest_sum_col]))
+        logger.info('- For sample ' + str(highest_sum_col) + ', the sum of feature intensities = ' + '{:.2e}'.format(sums[highest_sum_col]))
+        logger.info('- The blank sample is assumed to be '+str(smallest_sum_col)+' in the feature table')
+        logger.info('- The sample is assumed to be '+str(highest_sum_col)+' in the feature table')
+        table = table.fillna(0).sort_values('retention_time')
+
+        # Define the new order of columns
+        new_order = ['Mass [m/z]', 'retention_time', 'charge', smallest_sum_col, highest_sum_col]
+
+        # Reorder the columns using reindex
+        table = table.reindex(columns=new_order)
+
+        table.to_csv(output_filename, sep=',', index=False)
+        
+        return highest_sum_col, smallest_sum_col
+    
+    
+    elif input_filename.endswith('.csv'):
+        print("Input file is a MZmine3 feature table")
+        
+        # Process the MZmine3 table
+        table = pd.read_csv(input_filename, index_col=False, on_bad_lines='skip')
+            
+        cols_to_drop = ['row ID', 'row ion mobility','row ion mobility unit','row CCS','correlation group ID','annotation network number','partners','neutral M mass', 'auto MS2 verify','identified by n=']
+        for col in cols_to_drop:
+            if col in table.columns:
+                table.drop(col, axis=1, inplace=True)
+            else:
+                print(f"Column {col} not found. This supports MZmine3 feature table")
+        
+        table.drop(table.columns[table.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
+        # Replace MZmine adducts into charge
+        def replace_best_ion(best_ion):
+            if pd.isnull(best_ion) or best_ion != best_ion:
+                return 0
+            if ']2+' in best_ion:
+                return '2'
+            elif ']+' in best_ion:
+                return '1'
+            elif ']2-' in best-ion:
+                return '-1'
+            elif ']1-' in best-ion:
+                return '-1'
+            else:
+                return '0'
+
+        table['best ion'] = table['best ion'].apply(lambda x: replace_best_ion(x))
+        table = table.rename(columns={'row m/z': 'Mass [m/z]'})
+        table = table.rename(columns={'best ion': 'charge'})
+        table = table.rename(columns={'row retention time': 'retention_time'})
+        #Convert min into seconds for MS2Planner
+        table['retention_time'] = table['retention_time']*60
+
+        #Detection of blank
+        #print('#Deducing the blank sample by comparing the sum of feature intensity between samples')
+
+        # Get all columns containing 'Peak area' in their name
+        peak_area_cols = table.filter(like='Peak area')
+
+        # Loop through each column and calculate its sum
+        sums = {}
+        for col in peak_area_cols:
+            sums[col] = table[col].sum()
+
+        # Find the column with the highest sum
+        highest_sum_col = max(sums, key=sums.get)
+        smallest_sum_col = min(sums, key=sums.get)
+
+        logger.info('- For sample ' + str(smallest_sum_col) + ', the sum of feature intensities = ' + '{:.2e}'.format(sums[smallest_sum_col]))
+        logger.info('- For sample ' + str(highest_sum_col) + ', the sum of feature intensities = ' + '{:.2e}'.format(sums[highest_sum_col]))
+        logger.info('- The blank sample is assumed to be '+str(smallest_sum_col)+' in the feature table')
+        logger.info('- The sample is assumed to be '+str(highest_sum_col)+' in the feature table')
+        table = table.fillna(0).sort_values('retention_time')
+
+        # Define the new order of columns
+        new_order = ['Mass [m/z]', 'retention_time', 'charge', smallest_sum_col, highest_sum_col]
+
+        # Reorder the columns using reindex
+        table = table.reindex(columns=new_order)
+
         table.to_csv(output_filename, sep=',', index=False)
         
         return highest_sum_col, smallest_sum_col
@@ -386,7 +425,7 @@ def MS2Planner_baseline(input_filename:int, num_path:int, intensity_ratio:float,
         pass
     try:
         run_MS2Planner_baseline(output_filename[:-4]+'_filtered.csv', output_filename[:-4]+'_filtered_MS2Planner_baseline.csv', 
-                                intensity_threshold, intensity_ratio, num_path, win_len, isolation, delay)
+                                intensity_threshold, intensity_ratio, num_path, win_len, isolation, delay, max_same_RT)
     except:
         logger.info('There was an issue with the MS2Planner ! See the log below.')
         f = open('MS2Planner.log', 'r')
@@ -589,7 +628,7 @@ def MS2Planner_apex(input_filename:int, num_path:int, intensity_ratio:float, int
         pass
     try:
         run_MS2Planner_apex(output_filename[:-4]+'_filtered.csv', output_filename[:-4]+'_filtered_MS2Planner.csv', intensity_threshold,
-                             intensity_ratio, num_path, intensity_accu, isolation, delay, min_scan, max_scan)
+                             intensity_ratio, num_path, intensity_accu, isolation, delay, min_scan, max_scan, max_same_RT)
     except:
         logger.info('There was an issue with the MS2Planner ! See the log below.')
         f = open('MS2Planner.log', 'r')
@@ -795,7 +834,7 @@ def MS2Planner_curve(input_filename:int, num_path:int, intensity_ratio:float, in
     try:
         run_MS2Planner_curve(output_filename[:-4]+'_filtered.csv', output_filename[:-4]+'_filtered_MS2Planner.csv', intensity_threshold, 
                              intensity_ratio, num_path, input_filename_curve, intensity_accu, rt_tolerance_curve, mz_tolerance_curve, isolation,
-                               delay, min_scan, max_scan, cluster)
+                               delay, min_scan, max_scan, cluster, max_same_RT)
     except:
         logger.info('There was an issue with the MS2Planner ! See the log below.')
         f = open('MS2Planner.log', 'r')
@@ -918,18 +957,18 @@ def make_MS2Planner_targeted_lists_from_table(
     generate_Exploris_tMS2_table_from_MS2Planner(input_filename, input_filename[:-4]+'_Exploris_tMS2.csv',  pretarget_rt_margin=pretarget_rt_margin,  posttarget_rt_margin=posttarget_rt_margin,
                                                  RF_base_value=RF_base_value, CEs=CEs, polarity=polarity)
     
-def run_MS2Planner_baseline(input_filename:str, output_filename:str, intensity_threshold:float, intensity_ratio:float, num_path:int, win_len:float, isolation:float, delay:float):
-    cmd_baseline = ('python3 MS2Planner/path_finder.py baseline '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -win_len '+str(win_len)+' -isolation '+str(isolation)+' -delay '+str(delay))
+def run_MS2Planner_baseline(input_filename:str, output_filename:str, intensity_threshold:float, intensity_ratio:float, num_path:int, win_len:float, isolation:float, delay:float, max_same_RT:int):
+    cmd_baseline = ('python3 MS2Planner_lfnothias/path_finder.py baseline '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -win_len '+str(win_len)+' -isolation '+str(isolation)+' -delay '+str(delay)+" -max_same_RT "+str(max_same_RT))
     logger.info('Command: '+cmd_baseline)
     os.system(cmd_baseline)
 
-def run_MS2Planner_apex(input_filename:str, output_filename:str, intensity_threshold:float, intensity_ratio:float, num_path:int, intensity_accu:float, isolation:float, delay:float, min_scan:float, max_scan:float):
-    cmd_apex = ('python3 MS2Planner/path_finder.py apex '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -intensity_accu '+str(intensity_accu)+' -isolation '+str(isolation)+' -delay '+str(delay)+' -min_scan '+str(min_scan)+' -max_scan '+str(max_scan))
+def run_MS2Planner_apex(input_filename:str, output_filename:str, intensity_threshold:float, intensity_ratio:float, num_path:int, intensity_accu:float, isolation:float, delay:float, min_scan:float, max_scan:float, max_same_RT:int):
+    cmd_apex = ('python3 MS2Planner_lfnothias/path_finder.py apex '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -intensity_accu '+str(intensity_accu)+' -isolation '+str(isolation)+' -delay '+str(delay)+' -min_scan '+str(min_scan)+' -max_scan '+str(max_scan)+" -max_same_RT "+str(max_same_RT))
     logger.info('Command: '+cmd_apex)
     os.system(cmd_apex)
 
-def run_MS2Planner_curve(input_filename:str, output_filename:str, intensity_threshold:float, intensity_ratio:float, num_path:int, input_filename_curve:str, intensity_accu:float, rt_tolerance_curve:float, mz_tolerance_curve:float, isolation:float, delay:float, min_scan:float, max_scan:float, cluster:str):
-    cmd_curve = ('python3 MS2Planner/path_finder.py curve '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -infile_raw '+str(input_filename_curve)+' -intensity_accu '+str(intensity_accu)+' -restriction '+str(rt_tolerance_curve)+' '+str(mz_tolerance_curve)+' -isolation '+str(isolation)+' -delay '+str(delay)+' -min_scan '+str(min_scan)+' -max_scan '+str(max_scan)+' -cluster '+str(cluster))
+def run_MS2Planner_curve(input_filename:str, output_filename:str, intensity_threshold:float, intensity_ratio:float, num_path:int, input_filename_curve:str, intensity_accu:float, rt_tolerance_curve:float, mz_tolerance_curve:float, isolation:float, delay:float, min_scan:float, max_scan:float, cluster:str, max_same_RT:int):
+    cmd_curve = ('python3 MS2Planner_lfnothias/path_finder.py curve '+input_filename+' '+output_filename+' '+str(intensity_threshold)+' '+str(intensity_ratio)+' '+str(num_path)+' -infile_raw '+str(input_filename_curve)+' -intensity_accu '+str(intensity_accu)+' -restriction '+str(rt_tolerance_curve)+' '+str(mz_tolerance_curve)+' -isolation '+str(isolation)+' -delay '+str(delay)+' -min_scan '+str(min_scan)+' -max_scan '+str(max_scan)+' -cluster '+str(cluster)+" -max_same_RT "+str(max_same_RT))
     logger.info('Command: '+cmd_curve)
     logger.info('MS2Planner in Curve mode can take up to 10 minutes to complete ... please wait')
     logger.info('Output of MS2Planner: '+output_filename)

@@ -323,6 +323,9 @@ def IODA_targeted_workflow(blank_mzML:str,sample_mzML:str,ppm_tolerance:float,no
                                 'RT':'retention_time'})
     df = df.drop(columns=['sequence'])
     df.to_csv('OpenMS_workflow/OpenMS_output/consensus.csv', index=False)
+    df = df.drop(columns=['quality'])
+    df = df.iloc[:, [2, 1, 0, 4, 3]]
+    df.to_csv('OpenMS_workflow/OpenMS_output/consensus_MS2Planner.csv', index=False)
 
     # Error with the OpenMS workflow. No output files.
     try:
