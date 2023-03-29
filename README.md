@@ -26,7 +26,7 @@ Start the notebook on the cloud with Binder (GESIS server) -> [![Binder with GES
 
 **Interactive interface with Binder**
 
-Binder standard server [LATEST] -> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/lfnothias/IODA_MassSpec/2303_pyopenms?urlpath=lab/tree/home/jovyan/IODA_notebooks_welcome.ipynb)
+Binder standard server [LATEST] -> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/IODA_notebooks_welcome.ipynb)
 
 **View-only interface** (non-interactive): [`IODA_notebooks_welcome.ipynb`](https://nbviewer.jupyter.org/github/lfnothias/IODA_MassSpec/blob/master/IODA_notebooks_welcome.ipynb)
 
