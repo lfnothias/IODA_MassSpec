@@ -1,14 +1,26 @@
 # IODA Mass Spec
 
-This repository will help accomplish two things:
+This repository offers a collection of notebooks and scripts to run Iterative Optimised Data Acquisition (IODA), including MS2Planner - [(See article, Zuo, Cao, Nothias, Mohimani, *Bioinformatics*, Volume 37, Issue Supplement_1, July 2021, Pages i231–i236](https://academic.oup.com/bioinformatics/article/37/Supplement_1/i231/6319686)) and  [see GitHub repository](https://github.com/mohimanilab/MS2Planner).
 
-1. Feature Detection using TOPPAS/OpenMS.
-2. Create an exclusion list for the Q Exactive Mass Spectrometer.
+### A. Generation custom exclusion list for IODA on Orbitrap MS
+
+1. Feature detection and alignemnent from mzML/RAW files with pyOpenMS.
+2. Create an exclusion list for the Exactive/Fusion serie MS or Exploris/Trihybrid serie MS.
+3. Run the IODA experiments on the mass spectrometer.
+
+
+
+### B. Generate a targeted list for targeted IODA experiments on Orbitrap MS
+
+1. Feature detection and alignemnent from mzML/RAW files with pyOpenMS.
+2. Optimise target ion distribution accross multiple iterative experiments.
+3. Create an targeted list for the Exactive/Fusion serie MS or Exploris/Trihybrid serie MS.
+4. Run the IODA experiments on the mass spectrometer.
 
 
 ## Running on your own data
 
-Binder with GESIS server [LATEST] -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/2303_pyopenms?urlpath=lab/tree/IODA_notebooks_welcome.ipynb)
+Start the notebook on the cloud with Binder (GESIS server) -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/2303_pyopenms?urlpath=lab/tree/IODA_notebooks_welcome.ipynb)
 
 Binder with GESIS server [FROZEN] -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/53276f8e456d0ab788da3cc9b33059934622e507)
 
