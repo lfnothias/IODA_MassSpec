@@ -1,6 +1,6 @@
-jupyter contrib nbextension install --user
-jupyter nbextension enable --py widgetsnbextension
-jupyter labextension install @jupyter-widgets/jupyterlab-manager --minimize=False
+#jupyter contrib nbextension install --user
+#jupyter nbextension enable --py widgetsnbextension
+#jupyter labextension install @jupyter-widgets/jupyterlab-manager --minimize=False
 
 pip install pyopenms-3.0.0.dev20230316-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 #pip install pyopenms-3.0.0-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
