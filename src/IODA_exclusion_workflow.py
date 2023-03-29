@@ -8,7 +8,6 @@ import os
 import matplotlib.pyplot as plt
 from io import StringIO
 import warnings
-from pandas.core.common import SettingWithCopyWarning
 from format_to_qexactive_list import *
 from zipfile import ZipFile
 from logzero import logger, logfile

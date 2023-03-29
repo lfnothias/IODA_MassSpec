@@ -6,5 +6,5 @@ pip install pyopenms-3.0.0.dev20230316-cp310-cp310-manylinux_2_17_x86_64.manylin
 #pip install pyopenms-3.0.0-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 #pip install pyopenms-3.0.0.dev20230316-cp310-cp310-win_amd64.whl
 #pip install pyopenms-3.0.0.dev20230316-cp310-cp310-macosx_10_9_x86_64.whl
-pip install memory-profiler
-pip install line_profiler
+#pip install memory-profiler
+#pip install line_profiler
