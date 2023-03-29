@@ -45,3 +45,10 @@ Unit tests are run using github actions. To run them manually:
 ```make test-unit```
 
 The actual tests are in the ```test``` directory.
+
+
+## Update the submodule
+
+```
+git submodule update --remote
+```
