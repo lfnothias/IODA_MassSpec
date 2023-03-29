@@ -12,4 +12,3 @@ nbresuse
 plotly
 pymzML
 jupyterlab
-widgetsnbextension
