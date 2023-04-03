@@ -1,4 +1,4 @@
-python==3.10
+python
 ipython
 pandas
 numpy
@@ -11,5 +11,4 @@ jupyterlab_launcher
 pymzml
 nbresuse
 plotly
-pymzML
 jupyterlab
