@@ -13,7 +13,12 @@ RUN set -ex; \
     if [ "$PLATFORM_SYSTEM" == "Windows" ]; then \
         WHL_FILE="/pyopenms_wheels/pyopenms-3.0.0.dev20230316-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-win_amd64.whl"; \
     elif [ "$PLATFORM_SYSTEM" == "Darwin" ]; then \
-        WHL_FILE="/pyopenms_wheels/pyopenms-3.0.0.dev20230316-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-macosx_10_9_x86_64.whl
+        WHL_FILE="/pyopenms_wheels/pyopenms-3.0.0.dev20230316-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-macosx_10_9_x86_64.whl"; \
+    else \
+        WHL_FILE="/pyopenms_wheels/pyopenms-3.0.0.dev20230316-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"; \
+    fi; \
+    echo "Selected wheel file: ${WHL_FILE}"; \
+    pip install $WHL_FILE
 
 # Set working directory
 WORKDIR /app
