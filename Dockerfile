@@ -14,3 +14,12 @@ RUN set -ex; \
         WHL_FILE="/pyopenms_wheels/pyopenms-3.0.0.dev20230316-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-win_amd64.whl"; \
     elif [ "$PLATFORM_SYSTEM" == "Darwin" ]; then \
         WHL_FILE="/pyopenms_wheels/pyopenms-3.0.0.dev20230316-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-macosx_10_9
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements.txt and other necessary files
+COPY requirements.txt /app/requirements.txt
+
+# Install requirements
+RUN pip install --no-cache-dir -r requirements.txt
