@@ -10,5 +10,4 @@ jupyterlab_launcher
 pymzml
 nbresuse
 plotly
-pymzML
 jupyterlab
