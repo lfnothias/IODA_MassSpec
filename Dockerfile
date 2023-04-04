@@ -25,8 +25,15 @@ USER $NB_UID
 COPY requirements.txt /tmp/
 RUN pip install --requirement /tmp/requirements.txt
 
+
 COPY pyopenms_wheels /home/jovyan/pyopenms_wheels
 
+USER root
+
 # Execute postBuild script
-COPY postBuild /tmp/
-RUN /tmp/postBuild
+
+COPY postBuild /tmp/postBuild
+RUN chmod +x /tmp/postBuild && \
+    /tmp/postBuild
+
+USER $NB_UID
