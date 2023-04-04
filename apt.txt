@@ -1,4 +1,7 @@
-apt-get -qq update && \
-    apt-get install --yes --no-install-recommends gnupg ca-certificates unzip mono-devel && \
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF && \
-    echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main" | tee /etc/apt/sources.list.d/mono-official-stable.list
+# Add the Mono repository GPG key
+gnupg
+ca-certificates
+apt-transport-https
+
+# Install Mono and its dependencies
+mono-devel
