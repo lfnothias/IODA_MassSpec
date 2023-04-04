@@ -19,9 +19,6 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E03280
     rm -rf /var/lib/apt/lists/*
 
 
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
 USER $NB_UID
 
 # Install Python packages from requirements.txt
