@@ -167,7 +167,7 @@ def make_exclusion_from_dfs(input_mzML:int, min_intensity:int, rtexclusionmargin
     os.system('rm -r results')
     os.system('rm download_results/IODA_exclusion_results.zip')
     os.system('mkdir results')
-    os.system('mkdir results/intermediate')
+    os.system('mkdir results/intermediate_files')
     os.system('mkdir download_results')
     now = datetime.datetime.now()
     logger.info(now)
@@ -221,12 +221,12 @@ def make_exclusion_from_dfs(input_mzML:int, min_intensity:int, rtexclusionmargin
 
     # Convert to XCalibur format
     logger.info('Preparing list of excluded ions in XCalibur format (Exactive serie)')
-    generate_QE_list_rt_range(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exactive.csv')
+    generate_Exactive_exclusion_table(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exactive.csv')
     logger.info('Preparing list of excluded ions in XCalibur format (Exploris serie)')
-    generate_Exploris_list_rt_range(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exploris.csv')
+    generate_Exploris_exclusion_table(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exploris.csv')
     logger.info('======')  
     logger.info('Preparing list of excluded ions in MaxQuant.Live format')
-    generate_MQL_exclusion(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_MaxQuantLive.txt')
+    generate_MQL_exclusion_table(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_MaxQuantLive.txt')
     logger.info('======')
 
     # === Plot the features  ====
@@ -258,7 +258,7 @@ def make_exclusion_from_mzTab_or_df(input_filepath:str, min_intensity:int, rtexc
     os.system('rm -r results')
     os.system('rm download_results/IODA_exclusion_results.zip')
     os.system('mkdir results')
-    os.system('mkdir results/intermediate')
+    os.system('mkdir results/intermediate_files')
     os.system('mkdir download_results')
     os.system('rm results/logfile.txt')
     logfile('results/logfile.txt')
@@ -274,17 +274,17 @@ def make_exclusion_from_mzTab_or_df(input_filepath:str, min_intensity:int, rtexc
     if input_filepath.endswith('.mzTab'): 
         logger.info('======')
         logger.info('Converting mzTab to table format')
-        convert_blank_range_mzTab_to_table(input_filepath, os.path.join("results/intermediate/", os.path.basename(input_filepath)[:-6] + "_converted.csv"))
+        convert_blank_range_mzTab_to_table(input_filepath, os.path.join("results/intermediate_files/", os.path.basename(input_filepath)[:-6] + "_converted.csv"))
     
         # Concatenating the tables from narrow and large features:
-        output_filename = os.path.join("results/intermediate/", os.path.basename(input_filepath)[:-6] + "_converted.csv")
+        output_filename = os.path.join("results/intermediate_files/", os.path.basename(input_filepath)[:-6] + "_converted.csv")
         #logger.info(output_filename)
         df = pd.read_csv(output_filename, sep=',')
         
         
     else:
         # Concatenating the tables from narrow and large features:
-        os.system('cp '+input_filepath +" " + os.path.join("results/intermediate/", os.path.basename(input_filepath)))
+        os.system('cp '+input_filepath +" " + os.path.join("results/intermediate_files/", os.path.basename(input_filepath)))
         output_filename = os.path.basename(input_filepath)
         logger.info(output_filename)
         df = pd.read_csv(input_filepath, sep=',')
@@ -316,12 +316,12 @@ def make_exclusion_from_mzTab_or_df(input_filepath:str, min_intensity:int, rtexc
 
     # Convert to XCalibur format
     logger.info('Preparing list of excluded ions in XCalibur format (Exactive serie)')
-    generate_QE_list_rt_range(output_filename[:-4] + '_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exactive.csv')
+    generate_Exactive_exclusion_table(output_filename[:-4] + '_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exactive.csv',0)
     logger.info('Preparing list of excluded ions in XCalibur format (Exploris serie)')
-    generate_Exploris_list_rt_range(output_filename[:-4] + '_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exploris.csv')
+    generate_Exploris_exclusion_table(output_filename[:-4] + '_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exploris.csv',0)
     logger.info('======')
     logger.info('Preparing list of excluded ions in MaxQuant.Live format')
-    generate_MQL_exclusion(output_filename[:-4] +'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_MaxQuantLive.txt')
+    generate_MQL_exclusion_table(output_filename[:-4] +'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_MaxQuantLive.txt',0)
     logger.info('======')
 
 

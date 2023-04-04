@@ -124,7 +124,8 @@ def generate_Exploris_exclusion_table(
 
     df["t start (min)"] = df_master["Start [min]"].round(decimals=3)
     df["t stop (min)"] = df_master["End [min]"].round(decimals=3)
-    df["Intensity Threshold"] = round(df_master["intensity"],0)*apex_int_percent
+    df["Intensity Threshold"] = round(pd.to_numeric(df_master[blank_samplename], errors='coerce'), 0) * apex_int_percent
+
 
     df.to_csv(output_filename, index = False, sep=',')  
 
@@ -153,9 +154,10 @@ def generate_MQL_exclusion_table(input_table:str,
     df = pd.read_csv(input_table)
 
     df2 = df[['Mass [m/z]','retention_time','charge',blank_samplename]]
-    df2['Mass']=df2['Mass [m/z]'].round(decimals=5)
-    df2['Retention time']= (df2['retention_time']/60)
-    df2 = df2.copy().rename(columns={blank_samplename:'Apex intensity'}, inplace=True)
+    df2 = df2.copy()
+    df2.loc[:, 'Mass'] = df2['Mass [m/z]'].round(decimals=5)
+    df2.loc[:, 'Retention time'] = (df2['retention_time'] / 60)
+    df2 = df2.copy().rename(columns={blank_samplename:'Apex intensity'})
     df2['Apex intensity']=df2['Apex intensity'].round(decimals=0)*apex_int_percent
     df2['placeholder'] = np.arange(len(df2)) + 1 #Mandatory for import
     df2['Modified sequence'] = np.arange(len(df2)) + 1 #Mandatory for import. Arbitrary string.
@@ -164,18 +166,18 @@ def generate_MQL_exclusion_table(input_table:str,
     if polarity not in ('Positive', 'Negative'):
         raise ValueError("Invalid polarity. Allowed values are 'Positive' or 'Negative'")
     if polarity == 'Negative':
-        df['Charge'] = [-1 if (x != 0 and not np.isnan(x)) else x for x in df2['charge']] #if 0 sequence is buging
+        df2['Charge'] = [-1 if (x != 0 and not np.isnan(x)) else x for x in df['charge']] #if 0 sequence is buging
     else:
-        df['Charge'] = [1 if (x != 0 and not np.isnan(x)) else x for x in df2['charge']] #if 0 sequence is buging
+        df2['Charge'] = [1 if (x != 0 and not np.isnan(x)) else x for x in df['charge']] #if 0 sequence is buging
 
     df2['Retention time'] = df2['Retention time'].round(decimals=4)
     df2['MaxIt'] = ''
     df2["Colission Energies"] = ''
     
     # Find the 75 percentile value of 'Apex Intensity' column
-    q3 = df2['Apex Intensity'].quantile(.75)
+    q3 = df2['Apex intensity'].quantile(.75)
     # Update the 'RealtimeCorrection' column with 'TRUE' value where the 'Apex Intensity' value is greater than or equal to q3.
-    df2.loc[df2['Apex Intensity'] >= q3, 'RealtimeCorrection'] = 'TRUE'
+    df2.loc[df2['Apex intensity'] >= q3, 'RealtimeCorrection'] = 'TRUE'
 
     df2['TargetedMs2'] = 'FALSE'
     df2['Targetedlabeled'] = 'FALSE'
@@ -188,7 +190,8 @@ def generate_MQL_exclusion_table(input_table:str,
                   'Retention time','Apex intensity','Fragments mz', 'MaxIt',\
                   'NCE Factors', 'Colission Energies','RealtimeCorrection','TargetedMs2',\
                   'Targetedlabeled','TargetedMultiInjection','TopNExclusion']]
-    df_out.rename(columns={'placeholder':''}, inplace=True)
+    df_out = df_out.copy()
+    df_out.rename(columns={'placeholder': ''}, inplace=True)
 
     df_out.to_csv(output_filename, index=None, sep='\t')
 
