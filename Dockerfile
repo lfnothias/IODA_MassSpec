@@ -29,5 +29,4 @@ COPY pyopenms_wheels /home/jovyan/pyopenms_wheels
 
 # Execute postBuild script
 COPY postBuild /tmp/
-RUN chmod +x /tmp/postBuild && \
-    /tmp/postBuild
+RUN /tmp/postBuild
