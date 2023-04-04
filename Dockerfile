@@ -23,13 +23,11 @@ USER $NB_UID
 
 # Install Python packages from requirements.txt
 COPY requirements.txt /tmp/
-RUN pip install --requirement /tmp/requirements.txt && \
-    rm /tmp/requirements.txt
+RUN pip install --requirement /tmp/requirements.txt
 
 COPY pyopenms_wheels /home/jovyan/pyopenms_wheels
 
 # Execute postBuild script
 COPY postBuild /tmp/
 RUN chmod +x /tmp/postBuild && \
-    /tmp/postBuild && \
-    rm /tmp/postBuild
+    /tmp/postBuild
