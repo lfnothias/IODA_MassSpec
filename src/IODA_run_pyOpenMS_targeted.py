@@ -91,7 +91,7 @@ def IODA_targeted_workflow(blank_mzML:str,sample_mzML:str,ppm_tolerance:float,no
         elif input_file.endswith(('.raw','.RAW')):
             logger.info('Thermo RAW file detected')
             logger.info('This is the input file path: '+str(input_file))
-            bashCommand5 = "mono ThermoRawFileParser/ThermoRawFileParser.exe -i="+input_file+" --logging=1 --ignoreInstrumentErrors --excludeExceptionData --output_file "+os.path.join(OpenMS_folder+"/OpenMS_input/", os.path.basename(input_file)[:-3] + ".mzML")
+            bashCommand5 = "mono ThermoRawFileParser/ThermoRawFileParser.exe -i="+input_file+" --logging=2 --ignoreInstrumentErrors --output_file "+os.path.join(OpenMS_folder+"/OpenMS_input/", os.path.basename(input_file)[:-3] + ".mzML")
             logger.info('The file is converting to mzML thanks ThermoRawFileParser v1.3.4, please wait few seconds ...: '+str(input_file))
             logger.info(str(bashCommand5))
             cp5 = subprocess.run(bashCommand5,shell=True)

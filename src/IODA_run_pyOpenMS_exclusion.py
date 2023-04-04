@@ -62,7 +62,7 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
     elif input_mzML.endswith(('.raw','.RAW')):
         logger.info('Thermo RAW file detected')
         logger.info('This is the input file path: '+str(input_mzML))
-        bashCommand5 = "mono ThermoRawFileParser/ThermoRawFileParser.exe -i="+input_mzML+" --logging=1 --ignoreInstrumentErrors --excludeExceptionData --output_file "+os.path.join(OPENMS_folder+"/OpenMS_input/", os.path.basename(input_mzML)[:-4] + ".mzML")
+        bashCommand5 = "mono ThermoRawFileParser/ThermoRawFileParser.exe -i="+input_mzML+" --logging=2 --ignoreInstrumentErrors --output_file "+os.path.join(OPENMS_folder+"/OpenMS_input/", os.path.basename(input_mzML)[:-4] + ".mzML")
         logger.info('The file is converting to mzML thanks ThermoRawFileParser v1.3.4, please wait few seconds ...: '+str(input_mzML))
         logger.info(str(bashCommand5))
         cp5 = subprocess.run(bashCommand5,shell=True)
