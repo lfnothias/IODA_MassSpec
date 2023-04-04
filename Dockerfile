@@ -37,4 +37,4 @@ RUN chmod +x /tmp/postBuild && \
 
 USER $NB_UID
 
-COPY . /home/jovyan/work
+COPY . /home/jovyan
