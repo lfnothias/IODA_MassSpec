@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Install other required packages if needed
+
+PYTHON_VERSION=$(python -c "import sys; print(f'{sys.version_info.major}{sys.version_info.minor}')")
+echo "Detected Python version: ${PYTHON_VERSION}"
+
+PLATFORM_SYSTEM=$(uname)
+echo "Detected platform: ${PLATFORM_SYSTEM}"
+
+WHEELS_DIR="pyopenms_wheels"
+
+if [ "$PLATFORM_SYSTEM" == "Windows" ]; then
+    WHL_FILE="${WHEELS_DIR}/pyopenms-3.0.0.dev20230316-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-win_amd64.whl"
+elif [ "$PLATFORM_SYSTEM" == "Darwin" ]; then
+    WHL_FILE="${WHEELS_DIR}/pyopenms-3.0.0.dev20230316-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-macosx_10_9_x86_64.whl"
+else
+    WHL_FILE="${WHEELS_DIR}/pyopenms-3.0.0.dev20230316-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
+fi
+
+echo "Selected wheel file: ${WHL_FILE}"
+pip install $WHL_FILE
