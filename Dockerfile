@@ -29,6 +29,9 @@ COPY pyopenms_wheels /home/jovyan/pyopenms_wheels
 
 USER root
 
+COPY . /home/jovyan
+RUN chown -R $NB_UID:$NB_GID /home/jovyan
+
 # Execute postBuild script
 
 COPY postBuild /tmp/postBuild
@@ -36,5 +39,3 @@ RUN chmod +x /tmp/postBuild && \
     /tmp/postBuild
 
 USER $NB_UID
-
-COPY . /home/jovyan
