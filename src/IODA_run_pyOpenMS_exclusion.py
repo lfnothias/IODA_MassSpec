@@ -92,7 +92,7 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
         
     elif input_mzML.endswith(('.mzML','.mzml')):
         try:
-            f = open(os.path.join(OPENMS_folder+"/OpenMS_input/", os.path.basename(input_mzML)[:-5] + ".mzML"))
+            f = open(os.path.join(OPENMS_folder+"/OpenMS_input/", os.path.basename(input_mzML)[:-4] + ".mzML"))
             f.close()
         except subprocess.CalledProcessError:
             logger.info('There was an error getting the file !')
@@ -230,7 +230,7 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
         ffm.run(mass_traces_deconvol, feature_map_FFM, chrom_out)
         feature_map_FFM.setUniqueIds() # Assigns a new, valid unique id per feature
         feature_map_FFM.setPrimaryMSRunPath([filepath.encode()]) # Sets the file path to the primary MS run (usually the mzML file)
-        FeatureXMLFile().store(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(filepath)[:-5] + "_large.featureXML"), feature_map_FFM)
+        FeatureXMLFile().store(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(filepath)[:-4] + "_large.featureXML"), feature_map_FFM)
 
         #Export a df
         df = feature_map_FFM.get_df()
@@ -240,7 +240,7 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
                                'RTstart':'rt_start',
                                'RTend':'rt_end'})
         df = df[['Mass [m/z]','retention_time','charge',os.path.basename(filepath),'rt_start','rt_end','quality']]
-        df.to_csv(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(filepath)[:-5] + "_large.csv"), index=False)
+        df.to_csv(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(filepath)[:-4] + "_large.csv"), index=False)
 
         logger.info('======')
         logger.info('"Finished feature detection of large features"')
@@ -350,7 +350,7 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
         ffm.run(mass_traces_deconvol, feature_map_FFM, chrom_out)
         feature_map_FFM.setUniqueIds() # Assigns a new, valid unique id per feature
         feature_map_FFM.setPrimaryMSRunPath([filepath.encode()]) # Sets the file path to the primary MS run (usually the mzML file)
-        FeatureXMLFile().store(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(filepath)[:-5] + "_narrow.featureXML"), feature_map_FFM)
+        FeatureXMLFile().store(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(filepath)[:-4] + "_narrow.featureXML"), feature_map_FFM)
         
         #Export a df
         df = feature_map_FFM.get_df()
@@ -360,7 +360,7 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
                                'RTstart':'rt_start',
                                'RTend':'rt_end'})
         df = df[['Mass [m/z]','retention_time','charge',os.path.basename(filepath),'rt_start','rt_end','quality']]
-        df.to_csv(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(filepath)[:-5] + "_narrow.csv"),index=False)
+        df.to_csv(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(filepath)[:-4] + "_narrow.csv"),index=False)
 
         del mtd
         del epd
@@ -393,9 +393,9 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
 
     # Error with the OpenMS workflow. No output files.
     try:
-        f = open(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(input_mzML)[:-5] + "_narrow.csv"))
+        f = open(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(input_mzML)[:-4] + "_narrow.csv"))
         f.close()
-        f = open(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(input_mzML)[:-5] + "_large.csv"))
+        f = open(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(input_mzML)[:-4] + "_large.csv"))
         f.close()
     except:
         logger.info('There was an issue with the pyOpenMS workflow ! See the log below.')

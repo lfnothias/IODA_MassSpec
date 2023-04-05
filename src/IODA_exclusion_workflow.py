@@ -13,71 +13,9 @@ from zipfile import ZipFile
 from logzero import logger, logfile
 import datetime
 import gc
+import csv
+import pyopenms as oms
 
-def convert_blank_range_mzTab_to_table(input_filename: str, output_filename: str):
-    """Take an mzTab containing one sample, output a table with mz, charge, rt, intensities."""
-    df = pd.read_csv(input_filename, sep='\t', error_bad_lines=False, warn_bad_lines=False)
-
-    # Get the metadata
-    metadata = []
-    start_row_consensus = 1
-    for row in df['1.0.0']:
-        metadata.append(row)
-        start_row_consensus += 1
-
-    # Change the type of the list
-    metadata = [str(item) for item in metadata]
-    [type(item) for item in metadata]
-
-    # Get the filenames
-    Filenames = []
-    for x in metadata:
-        if x.startswith('file:/'):
-            x = x.split('/')[-1]
-            #Remove duplicates
-            if x not in Filenames:
-                Filenames.append(x[:-5])
-
-    logger.info('   Filename(s) in the mzTab: '+str(Filenames))
-
-    Filename1 = Filenames[0]
-
-    # Display error message for additional samples
-    for x in Filenames:
-        if x == "ms_run[2]-location":
-            Filename2 = Filenames[1]
-            logger.info('Warning: There is more than two samples in that mzTab file. We support only one sample in the mzTab currently')
-
-    # Read and edit the table
-    main_df = pd.read_csv(input_filename,sep='\t',index_col=0, skiprows=range(0,start_row_consensus))
-
-    # Get the columns of interest
-    feat_int = main_df.loc[:, main_df.columns.str.startswith('peptide_abundance_study_variable')]
-    feat_mz = main_df.loc[:, main_df.columns.str.startswith('mass_to_charge')]
-    feat_charge = main_df.loc[:, main_df.columns.str.startswith('charge')]
-    feat_ret = main_df[['retention_time']]
-    feat_ret_list = main_df['retention_time_window'].to_list()
-
-    split_list =[i.split('|') for i in feat_ret_list]
-    feat_ret_start_end = pd.DataFrame(split_list,columns=None)
-    feat_ret_start_end.rename(columns={0:'rt_start'}, inplace=True)
-    feat_ret_start_end.rename(columns={1:'rt_end'}, inplace=True)
-
-    # Concat into a master table
-    df_master = pd.concat([feat_mz,feat_ret,feat_charge,feat_int], axis=1)
-    df_master['rt_start'] = feat_ret_start_end['rt_start'].to_list()
-    df_master['rt_end'] = feat_ret_start_end['rt_end'].to_list()
-
-    df_master.rename(columns={'peptide_abundance_study_variable[1]':Filename1}, inplace=True)
-
-    #Replace the sample headers for mandatory samples
-    df_master.rename(columns={'mass_to_charge':"Mass [m/z]"}, inplace=True)
-
-    # Fill the charge with 0
-    df_master = df_master.sort_values('retention_time')
-    df_master.to_csv(output_filename, sep=',', index=False)
-
-    return output_filename
 
 def make_exclusion_list(input_filename: str, sample: str, intensity:float):
     """From a table with mz, charge, rt, intensities, make an exclusion list from a single sample, above the intensity specified."""
@@ -160,10 +98,11 @@ def get_all_file_paths(directory,output_zip_path):
 
 # Make exclusion list from two dfs
 
-def make_exclusion_from_dfs(input_mzML:int, min_intensity:int, rtexclusionmargininsecs:float):
+def make_exclusion_from_dfs(input_mzML:int, min_intensity:int, rtexclusionmargininsecs:float, polarity:str):
     input_dir='OpenMS_workflow/OpenMS_output'
     output_dir = 'results'
-
+    
+    
     os.system('rm -r results')
     os.system('rm download_results/IODA_exclusion_results.zip')
     os.system('mkdir results')
@@ -174,21 +113,23 @@ def make_exclusion_from_dfs(input_mzML:int, min_intensity:int, rtexclusionmargin
     os.system('rm results/logfile.txt')
     logfile('results/logfile.txt')
 
+    
     # Convert the mzTabs into Tables to generate exclusion list
     logger.info('======')
     logger.info('Starting the IODA-exclusion workflow')
     logger.info('The source of the mzML file is: '+os.path.join("OpenMS_workflow/OpenMS_input/", os.path.basename(input_mzML)))
-    logger.info('Input dataframe for narrow feature: '+os.path.join("OpenMS_workflow/OpenMS_output/", os.path.basename(input_mzML)[:-5] + "_narrow.csv"))
-    logger.info('Input dataframe for large feature: '+os.path.join("OpenMS_workflow/OpenMS_output/", os.path.basename(input_mzML)[:-5] + "_large.csv"))
+    logger.info('Input dataframe for narrow feature: '+os.path.join("OpenMS_workflow/OpenMS_output/", os.path.splitext(os.path.basename(input_mzML))[0]) + "_narrow.csv")
+    logger.info('Input dataframe for large feature: '+os.path.join("OpenMS_workflow/OpenMS_output/", os.path.splitext(os.path.basename(input_mzML))[0]) + "_large.csv")
     logger.info('======')
     logger.info('======')
 
     # Read the table to get the filenames
-    feature_table = pd.read_csv(os.path.join("OpenMS_workflow/OpenMS_output/", os.path.basename(input_mzML)[:-5] + "_large.csv"),sep=',')
+    feature_table = pd.read_csv(os.path.join("OpenMS_workflow/OpenMS_output/", os.path.splitext(os.path.basename(input_mzML))[0]) + "_large.csv", sep=',')
     blank_samplename = feature_table.columns[3]
     del feature_table
     
-    output_filename = output_dir+'/'+blank_samplename[:-5]+'.csv'
+    name, ext = os.path.splitext(blank_samplename)
+    output_filename = output_dir+'/'+name+'.csv'
     logger.info('Blank sample name: was internally renamed as '+ blank_samplename)
 
     # User-defined parameters
@@ -198,8 +139,8 @@ def make_exclusion_from_dfs(input_mzML:int, min_intensity:int, rtexclusionmargin
 
     # Concatenating the tables from narrow and large features:
     
-    df_narrow = pd.read_csv(os.path.join("OpenMS_workflow/OpenMS_output/", os.path.basename(input_mzML)[:-5] + "_narrow.csv"), sep=',')
-    df_large = pd.read_csv(os.path.join("OpenMS_workflow/OpenMS_output/", os.path.basename(input_mzML)[:-5] + "_large.csv"), sep=',')
+    df_narrow = pd.read_csv(os.path.join("OpenMS_workflow/OpenMS_output/", os.path.splitext(os.path.basename(input_mzML))[0]) + "_narrow.csv", sep=',')
+    df_large = pd.read_csv(os.path.join("OpenMS_workflow/OpenMS_output/", os.path.splitext(os.path.basename(input_mzML))[0]) + "_large.csv", sep=',')
     df_concat = pd.concat([df_narrow,df_large])
 
     del df_narrow
@@ -221,12 +162,12 @@ def make_exclusion_from_dfs(input_mzML:int, min_intensity:int, rtexclusionmargin
 
     # Convert to XCalibur format
     logger.info('Preparing list of excluded ions in XCalibur format (Exactive serie)')
-    generate_Exactive_exclusion_table(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exactive.csv')
+    generate_Exactive_exclusion_table(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exactive.csv', rt_margin=0, polarity=polarity)
     logger.info('Preparing list of excluded ions in XCalibur format (Exploris serie)')
-    generate_Exploris_exclusion_table(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exploris.csv')
+    generate_Exploris_exclusion_table(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exploris.csv', rt_margin=0, polarity=polarity)
     logger.info('======')  
     logger.info('Preparing list of excluded ions in MaxQuant.Live format')
-    generate_MQL_exclusion_table(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_MaxQuantLive.txt')
+    generate_MQL_exclusion_table(output_filename[:-4]+'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_MaxQuantLive.txt', polarity=polarity)
     logger.info('======')
 
     # === Plot the features  ====
@@ -251,7 +192,7 @@ def make_exclusion_from_dfs(input_mzML:int, min_intensity:int, rtexclusionmargin
 
 
 # Make exclusion list from one mzTab or one dataframe
-def make_exclusion_from_mzTab_or_df(input_filepath:str, min_intensity:int, rtexclusionmargininsecs:float):
+def make_exclusion_from_df(input_filepath:str, min_intensity:int, rtexclusionmargininsecs:float,  polarity:str):
     #Example source filenames
     #input_filename = 'https://drive.google.com/file/d/1LYk-PKsBWl4Pv7c1TlhQwaqwkF2T6sux/view?usp=sharing'
     #input_filename = 'tests/Euphorbia/exclusion/ioda_input/Euphorbia_rogers_latex_Blank_MS1_2uL.mzTab'
@@ -271,24 +212,11 @@ def make_exclusion_from_mzTab_or_df(input_filepath:str, min_intensity:int, rtexc
     logger.info('Getting the intput file')
     logger.info('This is the input: '+input_filepath)
     
-    if input_filepath.endswith('.mzTab'): 
-        logger.info('======')
-        logger.info('Converting mzTab to table format')
-        convert_blank_range_mzTab_to_table(input_filepath, os.path.join("results/intermediate_files/", os.path.basename(input_filepath)[:-6] + "_converted.csv"))
-    
-        # Concatenating the tables from narrow and large features:
-        output_filename = os.path.join("results/intermediate_files/", os.path.basename(input_filepath)[:-6] + "_converted.csv")
-        #logger.info(output_filename)
-        df = pd.read_csv(output_filename, sep=',')
-        
-        
-    else:
-        # Concatenating the tables from narrow and large features:
-        os.system('cp '+input_filepath +" " + os.path.join("results/intermediate_files/", os.path.basename(input_filepath)))
-        output_filename = os.path.basename(input_filepath)
-        logger.info(output_filename)
-        df = pd.read_csv(input_filepath, sep=',')
-        
+    # Concatenating the tables from narrow and large features:
+    os.system('cp '+input_filepath +" " + os.path.join("results/intermediate_files/", os.path.basename(input_filepath)))
+    output_filename = os.path.basename(input_filepath)
+    logger.info(output_filename)
+    df = pd.read_csv(input_filepath, sep=',')
 
     # Read the table to get the filenames
     blank_samplename = df.columns[3]
@@ -316,12 +244,12 @@ def make_exclusion_from_mzTab_or_df(input_filepath:str, min_intensity:int, rtexc
 
     # Convert to XCalibur format
     logger.info('Preparing list of excluded ions in XCalibur format (Exactive serie)')
-    generate_Exactive_exclusion_table(output_filename[:-4] + '_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exactive.csv',0)
+    generate_Exactive_exclusion_table(output_filename[:-4] + '_EXCLUSION_BLANK.csv', blank_samplename, 'results/'+output_filename[:-4]+'_EXCLUSION_BLANK_Exactive.csv', rt_margin=0, polarity=polarity)
     logger.info('Preparing list of excluded ions in XCalibur format (Exploris serie)')
-    generate_Exploris_exclusion_table(output_filename[:-4] + '_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_Exploris.csv',0)
+    generate_Exploris_exclusion_table(output_filename[:-4] + '_EXCLUSION_BLANK.csv', blank_samplename, 'results/'+output_filename[:-4]+'_EXCLUSION_BLANK_Exploris.csv', rt_margin=0, polarity=polarity)
     logger.info('======')
     logger.info('Preparing list of excluded ions in MaxQuant.Live format')
-    generate_MQL_exclusion_table(output_filename[:-4] +'_EXCLUSION_BLANK.csv', blank_samplename, output_filename[:-4]+'_EXCLUSION_BLANK_MaxQuantLive.txt',0)
+    generate_MQL_exclusion_table(output_filename[:-4] +'_EXCLUSION_BLANK.csv', blank_samplename, 'results/'+output_filename[:-4]+'_EXCLUSION_BLANK_MaxQuantLive.txt', polarity=polarity)
     logger.info('======')
 
 
@@ -338,7 +266,7 @@ def make_exclusion_from_mzTab_or_df(input_filepath:str, min_intensity:int, rtexc
     #os.system('mkdir results/intermediate_files')
     #os.system('mv results/'+input_filepath+'_EXCLUSION_BLANK.csv intermediate_files/')
     #os.system('mv results/'+output_filepath+'.csv'+' intermediate_files/')
-    #os.system('mv results/*_EXCLUSION_BLANK.csv results/intermediate_files/')
+    os.system('mv results/*_EXCLUSION_BLANK.csv results/intermediate_files/')
 
     get_all_file_paths('results','download_results/IODA_exclusion_results.zip')
     logger.info('=======================')

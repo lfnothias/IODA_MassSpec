@@ -161,8 +161,9 @@ def generate_MQL_exclusion_table(input_table:str,
     df2['Apex intensity']=df2['Apex intensity'].round(decimals=0)*apex_int_percent
     df2['placeholder'] = np.arange(len(df2)) + 1 #Mandatory for import
     df2['Modified sequence'] = np.arange(len(df2)) + 1 #Mandatory for import. Arbitrary string.
+    
     #Polarity
-    polarity = polarity.capitalize()
+    polarity = str(polarity).capitalize()
     if polarity not in ('Positive', 'Negative'):
         raise ValueError("Invalid polarity. Allowed values are 'Positive' or 'Negative'")
     if polarity == 'Negative':
