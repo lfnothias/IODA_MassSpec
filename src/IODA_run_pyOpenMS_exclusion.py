@@ -7,7 +7,8 @@ import datetime
 import zipfile
 from datetime import date
 from IODA_exclusion_workflow import get_all_file_paths
-from subprocess import call
+from subprocess import call, CalledProcessError
+
 from pyopenms import MSExperiment, MzMLFile, MassTraceDetection, ElutionPeakDetection, FeatureMap, FeatureFindingMetabo, FeatureXMLFile
 import glob
 import pandas as pd
@@ -25,9 +26,9 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
     OpenMS_output_folder = "OpenMS_output"
     OPENMS_folder = "OpenMS_workflow"
     os.system('rm download_results/IODA_OpenMS_results.zip')
-    os.system('rm -r OpenMS_workflow/OpenMS_input/*')
-    os.system('rm -r OpenMS_workflow/OpenMS_output/OPENMS_out/')
+    os.system('rm -r OpenMS_workflow/OpenMS_output/*')
     os.system('mkdir download_results')
+    os.system('cp '+input_mzML+' OpenMS_workflow/OpenMS_input/')
 
     today = str(date.today())
     now = datetime.datetime.now()
@@ -37,18 +38,6 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
     logger.info('Getting the mzML, please wait ...')
 
     if input_mzML.startswith(('http','ftp')):
-        if 'google' in input_mzML:
-            logger.info('This is the Google Drive download link:'+str(input_mzML))
-            logger.info('Downloading the mzML, please wait ...')
-            url_id = input_mzML.split('/', 10)[5]
-            prefixe_google_download = 'https://drive.google.com/uc?export=download&id='
-            input_mzML = prefixe_google_download+url_id
-            bashCommand1 = "wget --no-check-certificate '"+input_mzML+"' -O "+os.path.join(OPENMS_folder+"/OpenMS_input/", os.path.basename(input_mzML)[:-4] + ".mzML")+" || rm -f "+os.path.join(OPENMS_folder+"/OpenMS_input/", os.path.basename(input_mzML))
-            cp1 = subprocess.run(bashCommand1,shell=True)
-            try:
-                cp1
-            except subprocess.CalledProcessError:
-                raise
         if 'massive.ucsd.edu' in input_mzML:
             logger.info('This is the MassIVE repository link: '+str(input_mzML))
             logger.info('Downloading the mzML, please wait ... ')
@@ -61,15 +50,20 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
     
     elif input_mzML.endswith(('.raw','.RAW')):
         logger.info('Thermo RAW file detected')
-        logger.info('This is the input file path: '+str(input_mzML))
-        bashCommand5 = "mono ThermoRawFileParser/ThermoRawFileParser.exe -i="+input_mzML+" --logging=2 --ignoreInstrumentErrors --output_file "+os.path.join(OPENMS_folder+"/OpenMS_input/", os.path.basename(input_mzML)[:-4] + ".mzML")
-        logger.info('The file is converting to mzML thanks ThermoRawFileParser v1.3.4, please wait few seconds ...: '+str(input_mzML))
-        logger.info(str(bashCommand5))
-        cp5 = subprocess.run(bashCommand5,shell=True)
-        try:
-            cp5
-        except subprocess.CalledProcessError:
-            raise
+        output_mzML = os.path.join(OPENMS_folder+"/OpenMS_input/", os.path.splitext(os.path.basename(input_mzML))[0] + ".mzML")
+        if os.path.isfile(output_mzML):
+            logger.info(f"Output file {output_mzML} already exists, skipping conversion")
+        else:
+            logger.info('This is the input file path: '+str(input_mzML))
+            bashCommand5 = "mono ThermoRawFileParser/ThermoRawFileParser.exe -i="+input_mzML+" --logging=2 --ignoreInstrumentErrors --output_file "+output_mzML
+            logger.info('The file is converting to mzML thanks ThermoRawFileParser v1.3.4, please wait few seconds ...: '+str(input_mzML))
+            logger.info(str(bashCommand5))
+            cp5 = subprocess.run(bashCommand5,shell=True)
+            try:
+                cp5
+            except subprocess.CalledProcessError:
+                raise
+
         
     else:
         #Check the file path is correct for local upload
@@ -80,8 +74,8 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
             cp3
         except subprocess.CalledProcessError:
             raise
+            
     # Error getting the file ! PLEASE VERY THE PATH TO THE FILE OR DOWNLOAD LINK ...
-    
     if input_mzML.endswith(('.raw','.RAW')):
         try:
             f = open(os.path.join(OPENMS_folder+"/OpenMS_input/", os.path.basename(input_mzML)[:-4] + ".mzML"))
@@ -92,13 +86,13 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
         
     elif input_mzML.endswith(('.mzML','.mzml')):
         try:
-            f = open(os.path.join(OPENMS_folder+"/OpenMS_input/", os.path.basename(input_mzML)[:-4] + ".mzML"))
+            f = open(os.path.join(OPENMS_folder+"/OpenMS_input/", os.path.basename(input_mzML)[:-5] + ".mzML"))
             f.close()
         except subprocess.CalledProcessError:
             logger.info('There was an error getting the file !')
         logger.info('The mzML file was found !')
 
-    logger.info('Copying the mzML to the OpenMS input folder')
+    logger.info('Copying the OpenMS results files')
 
     logger.info('======')
     logger.info('Changing variables of the OpenMS workflow')
@@ -230,7 +224,7 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
         ffm.run(mass_traces_deconvol, feature_map_FFM, chrom_out)
         feature_map_FFM.setUniqueIds() # Assigns a new, valid unique id per feature
         feature_map_FFM.setPrimaryMSRunPath([filepath.encode()]) # Sets the file path to the primary MS run (usually the mzML file)
-        FeatureXMLFile().store(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(filepath)[:-4] + "_large.featureXML"), feature_map_FFM)
+        FeatureXMLFile().store(os.path.join(os.path.join(OPENMS_folder + "/OpenMS_output/", os.path.splitext(os.path.basename(input_mzML))[0] + "_large.featureXML")), feature_map_FFM)
 
         #Export a df
         df = feature_map_FFM.get_df()
@@ -240,7 +234,7 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
                                'RTstart':'rt_start',
                                'RTend':'rt_end'})
         df = df[['Mass [m/z]','retention_time','charge',os.path.basename(filepath),'rt_start','rt_end','quality']]
-        df.to_csv(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(filepath)[:-4] + "_large.csv"), index=False)
+        df.to_csv(os.path.join(OPENMS_folder + "/OpenMS_output/", os.path.splitext(os.path.basename(input_mzML))[0] + "_large.csv"), index=False)
 
         logger.info('======')
         logger.info('"Finished feature detection of large features"')
@@ -350,7 +344,7 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
         ffm.run(mass_traces_deconvol, feature_map_FFM, chrom_out)
         feature_map_FFM.setUniqueIds() # Assigns a new, valid unique id per feature
         feature_map_FFM.setPrimaryMSRunPath([filepath.encode()]) # Sets the file path to the primary MS run (usually the mzML file)
-        FeatureXMLFile().store(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(filepath)[:-4] + "_narrow.featureXML"), feature_map_FFM)
+        FeatureXMLFile().store(os.path.join(OPENMS_folder + "/OpenMS_output/", os.path.splitext(os.path.basename(input_mzML))[0] + "_narrow.featureXML"), feature_map_FFM)
         
         #Export a df
         df = feature_map_FFM.get_df()
@@ -360,7 +354,7 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
                                'RTstart':'rt_start',
                                'RTend':'rt_end'})
         df = df[['Mass [m/z]','retention_time','charge',os.path.basename(filepath),'rt_start','rt_end','quality']]
-        df.to_csv(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(filepath)[:-4] + "_narrow.csv"),index=False)
+        df.to_csv(os.path.join(OPENMS_folder + "/OpenMS_output/", os.path.splitext(os.path.basename(input_mzML))[0] + "_narrow.csv"),index=False)
 
         del mtd
         del epd
@@ -375,16 +369,18 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
     patterns = ['raw', 'mzML', 'RAW', 'mzml']
     for pattern in patterns:
         input_mzML = input_mzML.replace(pattern, 'mzML')
-    
+    print(os.path.splitext(os.path.basename(input_mzML))[0])
+
     try:
-        pyopenms_exclusion_narrow(os.path.join(OPENMS_folder+"/OpenMS_input/", os.path.basename(input_mzML)), ppm_error, narrow_noise_threshold, 3)
+        pyopenms_exclusion_narrow(os.path.join(OPENMS_folder + "/OpenMS_input/", os.path.splitext(os.path.basename(input_mzML))[0]+ '.mzML'), ppm_error, narrow_noise_threshold, 3)
+
     except CalledProcessError as e:
         logger.info("!!! There was an error with OpenMS workflow for narrow features, please check your input files and parameters !!!")
         logger.info(e.output)
         raise    
         
     try:
-        pyopenms_exclusion_large(os.path.join(OPENMS_folder+"/OpenMS_input/", os.path.basename(input_mzML)), ppm_error, large_noise_threshold, 3)
+        pyopenms_exclusion_large(os.path.join(OPENMS_folder + "/OpenMS_input/", os.path.splitext(os.path.basename(input_mzML))[0]+ '.mzML'), ppm_error, large_noise_threshold, 3)
     except CalledProcessError as e:
         logger.info("!!! There was an error with OpenMS workflow for large features, please check your input files and parameters !!!")
         logger.info(e.output)
@@ -393,9 +389,9 @@ def IODA_exclusion_workflow(input_mzML,ppm_error,narrow_noise_threshold,large_no
 
     # Error with the OpenMS workflow. No output files.
     try:
-        f = open(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(input_mzML)[:-4] + "_narrow.csv"))
+        f = open(os.path.join(OPENMS_folder + "/OpenMS_output/", os.path.splitext(os.path.basename(input_mzML))[0] + "_narrow.csv"))
         f.close()
-        f = open(os.path.join(OPENMS_folder+"/OpenMS_output/", os.path.basename(input_mzML)[:-4] + "_large.csv"))
+        f = open(os.path.join(OPENMS_folder + "/OpenMS_output/", os.path.splitext(os.path.basename(input_mzML))[0] + "_large.csv"))
         f.close()
     except:
         logger.info('There was an issue with the pyOpenMS workflow ! See the log below.')
