@@ -14,17 +14,17 @@ This repository offers a collection of notebooks and scripts to run Iterative Op
 
 1. Feature detection and alignemnent from mzML/RAW files with pyOpenMS.
 2. Optimise target ion distribution accross multiple iterative experiments.
-3. Create an targeted list for the Exactive/Fusion serie MS or Exploris/Trihybrid serie MS.
+3. Create an targeted list for the Exactive/Fusion serie MS or Exploris/Tribrid serie MS.
 4. Run the IODA experiments on the mass spectrometer.
 
 
 ## Running on your own data with Binder
 
-**Interactive interface with Binder** 
+**Interactive interface with Binder-GESIS [First choice]** 
 
-Start the notebook on the cloud with Binder (GESIS server) -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/IODA_notebooks_welcome.ipynb)
+Start the notebook on the cloud with Binder on the GESIS server (more RAM for the Curve mode) -> [![Binder with GESIS](https://mybinder.org/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/IODA_notebooks_welcome.ipynb)
 
-**Interactive interface with Binder**
+**Interactive interface with Binder [back up and no curve mode]**
 
 Binder standard server [LATEST] -> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/lfnothias/IODA_MassSpec/master?urlpath=lab/tree/IODA_notebooks_welcome.ipynb)
 
