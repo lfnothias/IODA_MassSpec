@@ -191,7 +191,7 @@ def make_exclusion_from_dfs(input_mzML:int, min_intensity:int, rtexclusionmargin
     gc.collect()
 
 
-# Make exclusion list from one mzTab or one dataframe
+# Make exclusion list from one dataframe
 def make_exclusion_from_df(input_filepath:str, min_intensity:int, rtexclusionmargininsecs:float,  polarity:str):
     #Example source filenames
     #input_filename = 'https://drive.google.com/file/d/1LYk-PKsBWl4Pv7c1TlhQwaqwkF2T6sux/view?usp=sharing'
@@ -212,7 +212,7 @@ def make_exclusion_from_df(input_filepath:str, min_intensity:int, rtexclusionmar
     logger.info('Getting the intput file')
     logger.info('This is the input: '+input_filepath)
     
-    # Concatenating the tables from narrow and large features:
+    # Getting the df
     os.system('cp '+input_filepath +" " + os.path.join("results/intermediate_files/", os.path.basename(input_filepath)))
     output_filename = os.path.basename(input_filepath)
     logger.info(output_filename)
@@ -265,7 +265,7 @@ def make_exclusion_from_df(input_filepath:str, min_intensity:int, rtexclusionmar
     # Cleaning files first
     #os.system('mkdir results/intermediate_files')
     #os.system('mv results/'+input_filepath+'_EXCLUSION_BLANK.csv intermediate_files/')
-    #os.system('mv results/'+output_filepath+'.csv'+' intermediate_files/')
+    os.system('mv *_EXCLUSION_BLANK.csv results/intermediate_files/')
     os.system('mv results/*_EXCLUSION_BLANK.csv results/intermediate_files/')
 
     get_all_file_paths('results','download_results/IODA_exclusion_results.zip')

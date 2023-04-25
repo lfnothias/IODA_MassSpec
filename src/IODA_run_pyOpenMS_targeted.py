@@ -113,7 +113,7 @@ def IODA_targeted_workflow(blank_mzML:str,sample_mzML:str,ppm_tolerance:float,no
 
         if input_file.endswith(('.raw','.RAW')):
             try:
-                f = open(os.path.join("OpenMS_workflow/OpenMS_input/", os.path.basename(input_file)[:-3] + ".mzML"))
+                f = open(os.path.join("OpenMS_workflow/OpenMS_input/", os.path.basename(input_file)[:-4] + ".mzML"))
                 f.close()
             except subprocess.CalledProcessError:
                 logger.info('There was an error getting the file !')
@@ -121,7 +121,7 @@ def IODA_targeted_workflow(blank_mzML:str,sample_mzML:str,ppm_tolerance:float,no
 
         elif input_file.endswith(('.mzML','.mzml')):
             try:
-                f = open(os.path.join("OpenMS_workflow/OpenMS_input/", os.path.basename(input_file)[:-4] + ".mzML"))
+                f = open(os.path.join("OpenMS_workflow/OpenMS_input/", os.path.basename(input_file)[:-5] + ".mzML"))
                 f.close()
             except subprocess.CalledProcessError:
                 logger.info('There was an error getting the file !')
@@ -234,7 +234,7 @@ def IODA_targeted_workflow(blank_mzML:str,sample_mzML:str,ppm_tolerance:float,no
         ffm.run(mass_traces_deconvol, feature_map_FFM, chrom_out)
         feature_map_FFM.setUniqueIds() # Assigns a new, valid unique id per feature
         feature_map_FFM.setPrimaryMSRunPath([filename.encode()]) # Sets the file path to the primary MS run (usually the mzML file)
-        FeatureXMLFile().store("OpenMS_workflow/OpenMS_output/"+os.path.basename(filename)[:-4] + ".featureXML", feature_map_FFM)
+        FeatureXMLFile().store(("OpenMS_workflow/OpenMS_output/"+os.path.basename(filename)[:-4] + ".featureXML").replace("..", "."), feature_map_FFM)
 
     print("Finished Feature Detection")
 
