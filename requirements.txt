@@ -11,3 +11,4 @@ pymzml
 nbresuse
 plotly
 jupyterlab
+jupyterlab-system-monitor
