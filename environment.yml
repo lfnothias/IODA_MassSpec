@@ -1,0 +1,19 @@
+name: IODA_MassSpec
+channels:
+  - defaults
+dependencies:
+  - python =3.10.10
+  - ipython
+  - pandas
+  - numpy
+  - matplotlib
+  - vdom
+  - jupyter_contrib_nbextensions
+  - logzero
+  - scipy
+  - jupyterlab_launcher
+  - pymzml
+  - nbresuse
+  - plotly
+  - jupyterlab
+  - jupyterlab-system-monitor

@@ -18,7 +18,9 @@ This repository offers a collection of notebooks and scripts to run Iterative Op
 4. Run the IODA experiments on the mass spectrometer.
 
 
-## Running on your own data with Binder
+# Running IODA on the cloud with Binder
+
+Note that this a temporary web-instance. Nothing will be saved on the server. Download all required results.
 
 **Interactive interface with Binder-GESIS [First choice]** 
 
@@ -30,21 +32,30 @@ Binder standard server [LATEST] -> [![Binder](https://mybinder.org/badge_logo.sv
 
 **View-only interface** (non-interactive): [`IODA_notebooks_welcome.ipynb`](https://nbviewer.jupyter.org/github/lfnothias/IODA_MassSpec/blob/master/IODA_notebooks_welcome.ipynb)
 
-You will need to do two things:
+# Running IODA on your computer
 
-1. Open `IODA_TOPPAS_mztab_generation.ipynb` to run the feature finding to create the mztab file
-2. Open `IODA_exclusion_from_mztab.ipynb` to create the exclusion file to download
+Clone or download this repository. From a terminal, do:
 
+```
+git clone https://github.com/lfnothias/IODA_MassSpec.git
+```
 
-## Testing
+Navigate to the `IODA_MassSpec` folder:
 
-![Unit Test](https://github.com/lfnothias/IODA_MassSpec/workflows/Unit%20Test/badge.svg)
+```
+cd IODA_MassSpec
+```
+Create the conda environment using the conda env create command with your environment.yml file:
 
-Unit tests are run using github actions. To run them manually:
+```
+conda env create -f environment.yml
+```
 
-```make test-unit```
+Start the jupyter lab session and notebook(you can use other ipython interface if needed):
 
-The actual tests are in the ```test``` directory.
+```
+jupyter lab IODA_notebooks_welcome.ipynb
+```
 
 
 ## Update the submodule
