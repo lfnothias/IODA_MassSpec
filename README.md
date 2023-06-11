@@ -50,7 +50,7 @@ cd IODA_MassSpec
 Create the conda environment using the conda env create command with your environment.yml file:
 
 ```
-conda env create -f environment.yml
+conda env create -f environment_IODA_MassSpec.yml
 ```
 
 Make the pyOpenMS script executable:
