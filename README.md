@@ -34,7 +34,7 @@ Binder standard server [LATEST] -> [![Binder](https://mybinder.org/badge_logo.sv
 
 # Running IODA on your computer
 
-Only supported on mac/linux.
+This method is only for linux. To install on mac or windows, the process would be similar but you have to build the pyOpenMS 3.0 install whl for your system (non trivial).
 
 Clone or download this repository. From a terminal, do:
 
@@ -53,20 +53,14 @@ Create the conda environment using the conda env create command with your enviro
 conda env create -f environment_IODA_MassSpec.yml
 ```
 
-Go to the OpenMS action webpage [https://github.com/OpenMS/OpenMS/actions/runs/5194129865](https://github.com/OpenMS/OpenMS/actions/runs/5194129865)], download the pyOpenMS 3 wheel corresponding to your system. Save it in the IODA_MassSpec folder.
-
-Now run the following to install pyOpenMS 3.0 (adjust to the file name):
+Now run the following to install pyOpenMS 3.0:
 
 ```
-pip install WHEEL_FILE
+pip install pyopenms_wheels/pyopenms-3.0.0.dev20230316-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 ```	
 
-For example with:
+Alternatively, go to the OpenMS action webpage [like here](https://github.com/OpenMS/OpenMS/actions/runs/5194129865), download the pyOpenMS 3 wheel file corresponding to your system (note that you need to be logged in GitHub). Save it in the IODA_MassSpec folder, and install it similarly as above.
 
-```
-pip install pyopenms-3.0.0.dev20230606-cp310-cp310-macosx_10_9_x86_64.whl
-
-```
 
 Start the jupyter lab session and notebook(you can use other ipython interface if needed):
 
