@@ -34,12 +34,14 @@ Binder standard server [LATEST] -> [![Binder](https://mybinder.org/badge_logo.sv
 
 # Running IODA on your computer
 
-This method is only for linux. To install on mac or windows, the process would be similar but you have to build the pyOpenMS 3.0 install whl for your system (non trivial).
+Only for local install linux. To install on mac or windows, the process would be similar but you have to build the pyOpenMS 3.0 install whl for your system (non trivial).
+
+First, if not already installed, install [git](https://git-scm.com/downloads) and [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
 
 Clone or download this repository. From a terminal, do:
 
 ```
-git clone https://github.com/lfnothias/IODA_MassSpec.git
+git clone --recursive https://github.com/lfnothias/IODA_MassSpec.git
 ```
 
 Navigate to the `IODA_MassSpec` folder:
@@ -51,6 +53,10 @@ Create the conda environment using the conda env create command with your enviro
 
 ```
 conda env create -f environment_IODA_MassSpec.yml
+```
+Activate the IODA_MassSpec conda environment 
+```
+conda activate IODA_MassSpec
 ```
 
 Now run the following to install pyOpenMS 3.0:
