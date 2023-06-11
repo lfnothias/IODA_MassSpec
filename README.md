@@ -34,6 +34,8 @@ Binder standard server [LATEST] -> [![Binder](https://mybinder.org/badge_logo.sv
 
 # Running IODA on your computer
 
+Only supported on mac/linux.
+
 Clone or download this repository. From a terminal, do:
 
 ```
@@ -46,6 +48,21 @@ Navigate to the `IODA_MassSpec` folder:
 cd IODA_MassSpec
 ```
 Create the conda environment using the conda env create command with your environment.yml file:
+
+```
+conda env create -f environment.yml
+```
+
+Make the pyOpenMS script executable:
+
+```
+chmod +x pyopenms_install.sh
+```
+
+Install pyOpenMS 3.0:
+
+```
+./pyopenms_install.sh
 
 ```
 conda env create -f environment.yml
