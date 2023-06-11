@@ -53,19 +53,19 @@ Create the conda environment using the conda env create command with your enviro
 conda env create -f environment_IODA_MassSpec.yml
 ```
 
-Make the pyOpenMS script executable:
+Go to the OpenMS action webpage [https://github.com/OpenMS/OpenMS/actions/runs/5194129865](https://github.com/OpenMS/OpenMS/actions/runs/5194129865)], download the pyOpenMS 3 wheel corresponding to your system. Save it in the IODA_MassSpec folder.
+
+Now run the following to install pyOpenMS 3.0 (adjust to the file name):
 
 ```
-chmod +x pyopenms_install.sh
-```
+pip install WHEEL_FILE
+```	
 
-Install pyOpenMS 3.0:
-
-```
-./pyopenms_install.sh
+For example with:
 
 ```
-conda env create -f environment.yml
+pip install pyopenms-3.0.0.dev20230606-cp310-cp310-macosx_10_9_x86_64.whl
+
 ```
 
 Start the jupyter lab session and notebook(you can use other ipython interface if needed):
