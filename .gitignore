@@ -7,3 +7,16 @@ results_targeted_*
 download_results_*
 path_finder.log
 MS2Planner.log
+download_results/IODA_OpenMS_results.zip
+OpenMS_workflow/logfile_IODA_OpenMS_from_mzML.txt
+OpenMS_workflow/OpenMS_input/Euphorbia_rogers_latex_Blank_MS1_2uL.mzML
+OpenMS_workflow/OpenMS_input/Euphorbia_rogers_latex_latex_MS1_2uL.mzML
+OpenMS_workflow/OpenMS_input/placeholder.txt
+OpenMS_workflow/OpenMS_output/consensus.consensusXML
+OpenMS_workflow/OpenMS_output/consensus.csv
+OpenMS_workflow/OpenMS_output/consensus_MS2Planner.csv
+OpenMS_workflow/OpenMS_output/Euphorbia_rogers_latex_Blank_MS1_2uL.featureXML
+OpenMS_workflow/OpenMS_output/Euphorbia_rogers_latex_latex_MS1_2uL.featureXML
+OpenMS_workflow/OpenMS_output/placeholder.txt
+OpenMS_workflow/OpenMS_output/placeholder.txt
+OpenMS_workflow/OpenMS_input/placeholder.txt

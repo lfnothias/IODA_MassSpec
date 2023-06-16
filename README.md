@@ -32,9 +32,7 @@ Binder standard server [LATEST] -> [![Binder](https://mybinder.org/badge_logo.sv
 
 **View-only interface** (non-interactive): [`IODA_notebooks_welcome.ipynb`](https://nbviewer.jupyter.org/github/lfnothias/IODA_MassSpec/blob/master/IODA_notebooks_welcome.ipynb)
 
-# Running IODA on your computer
-
-Only for local install linux. To install on mac or windows, the process would be similar but you have to build the pyOpenMS 3.0 install whl for your system (non trivial).
+# Running IODA locally
 
 First, if not already installed, install [git](https://git-scm.com/downloads) and [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
 
@@ -61,11 +59,22 @@ conda activate IODA_MassSpec
 
 Now run the following to install pyOpenMS 3.0:
 
+For Linux:
+
 ```
 pip install pyopenms_wheels/pyopenms-3.0.0.dev20230316-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 ```	
 
-Alternatively, go to the OpenMS action webpage [like here](https://github.com/OpenMS/OpenMS/actions/runs/5194129865), download the pyOpenMS 3 wheel file corresponding to your system (note that you need to be logged in GitHub). Save it in the IODA_MassSpec folder, and install it similarly as above.
+
+For Mac, see the correct wheel build and instructions at [https://pypi.cs.uni-tuebingen.de/](https://pypi.cs.uni-tuebingen.de/). For example for ARM:
+
+```	
+pip install pyopenms_wheels/pyopenms-3.0.0.dev20230615-cp310-cp310-macosx_13_0_arm64.whl
+```	
+
+For Windows, see the correct wheel build and instructions at [https://pypi.cs.uni-tuebingen.de/](https://pypi.cs.uni-tuebingen.de/)
+
+Alternatively, go to the OpenMS action webpage [like here](https://github.com/OpenMS/OpenMS/actions/), download the pyOpenMS 3 wheel file corresponding to your system (note that you need to be logged in GitHub). Save it in the IODA_MassSpec folder, and install it similarly as above.
 
 
 Start the jupyter lab session and notebook(you can use other ipython interface if needed):
