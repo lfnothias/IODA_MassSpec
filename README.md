@@ -62,7 +62,7 @@ Now run the following to install pyOpenMS 3.0:
 For Linux:
 
 ```
-pip install pyopenms_wheels/pyopenms-3.0.0.dev20230316-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+pip install pyopenms_wheels/pyopenms-3.0.0.dev20230316-cp310-cp310-manylinux_2_17_manylinux_x86_64.whl
 ```	
 
 
