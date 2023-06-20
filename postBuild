@@ -10,7 +10,7 @@ echo "Detected platform: ${PLATFORM_SYSTEM}"
 
 WHEELS_DIR="pyopenms_wheels"
 
-WHL_FILE="${WHEELS_DIR}/pyopenms-3.0.0.dev20230316-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
+WHL_FILE="${WHEELS_DIR}/pyopenms-3.0.0-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
 
 echo "Selected wheel file: ${WHL_FILE}"
 pip install $WHL_FILE
