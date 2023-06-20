@@ -5,5 +5,12 @@
 PYTHON_VERSION=$(python -c "import sys; print(f'{sys.version_info.major}{sys.version_info.minor}')")
 echo "Detected Python version: ${PYTHON_VERSION}"
 
+PLATFORM_SYSTEM=$(uname)
+echo "Detected platform: ${PLATFORM_SYSTEM}"
+
+WHEELS_DIR="pyopenms_wheels"
+
+WHL_FILE="${WHEELS_DIR}/pyopenms-3.0.0.dev20230316-cp${PYTHON_VERSION}-cp${PYTHON_VERSION}-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
+
 echo "Selected wheel file: ${WHL_FILE}"
-pip install pyopenms_wheels/pyopenms-3.0.0.dev20230316-cp310-cp310-manylinux_2_17_manylinux_x86_64.whl
+pip install $WHL_FILE
