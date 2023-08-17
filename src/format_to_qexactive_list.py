@@ -357,8 +357,8 @@ def generate_Exploris_DDAMS2_table_from_MS2Planner(
     posttarget_rt_margin:float = 0,     # Time (in secs) to add to the rt_end
     transient_time:float = '',          # Transient time (in msecs)
     polarity:str = 'Positive',          # Polarity either 'Positive' or 'Negative'
-    CEs:str or List[str] = '',          # Colission energy(ies), stepping is possible like '25,35,45' or ['25,35,45','55,75']
-    apex_int_percent:float = 0.6        # Percent of the apex intensity - used to define the intensity threshold
+    CEs:str or List[str] = '15,30,45',          # Colission energy(ies), stepping is possible like '25,35,45' or ['25,35,45','55,75']
+    apex_int_percent:float = 0.5        # Percent of the apex intensity - used to define the intensity threshold
     ) -> pd.DataFrame:
     
         """
@@ -380,15 +380,17 @@ def generate_Exploris_DDAMS2_table_from_MS2Planner(
         df_master = pd.read_csv(input_table)
 
     # Calculate the minimum value of rt_start column by adding pretarget_rt_margin to the maximum value of rt_start column 
-        min_rt_value = df_master['rt_start'].max() + pretarget_rt_margin
+        min_rt_value = df_master['rt_start'].min() + (pretarget_rt_margin*60)
         # Subtract pretarget_rt_margin from rt_start column for all rows that have values greater than min_rt_value
-        df_master.loc[df_master['rt_start'] > min_rt_value, 'rt_start'] = (df_master['rt_start'] - pretarget_rt_margin)
-        
+        df_master.loc[df_master['rt_start'] > min_rt_value, 'rt_start'] = (df_master['rt_start'] - (pretarget_rt_margin*60))
+        # Replace negative values in the 'rt_start' column with 0
+        df_master['rt_start'] = df_master['rt_start'].apply(lambda x: max(0, x))
+
         # Calculate the maximum value of rt_end column by subtracting posttarget_rt_margin from the maximum value of rt_end column 
-        max_rt_value = df_master['rt_end'].max() - posttarget_rt_margin
+        max_rt_value = df_master['rt_end'].max() - (posttarget_rt_margin*60)
         # Add posttarget_rt_margin to rt_end column for all rows that have values less than max_rt_value
-        df_master.loc[df_master['rt_end'] < max_rt_value, 'rt_end'] = (df_master['rt_end'] + posttarget_rt_margin)
-        
+        df_master.loc[df_master['rt_end'] < max_rt_value, 'rt_end'] = (df_master['rt_end'] + (posttarget_rt_margin*60))
+
         df_master['for_comments'] = 'Apex = ' + df_master['rt_apex'].round(3).astype(str) + ' (sec) ' + (df_master['rt_apex']/60).round(2).astype(str) + ' (min) and int. = '+ df_master['intensity'].astype(float).map(lambda n: '{:.2E}'.format(n)).astype(str)
 
         #Make the output table
@@ -406,30 +408,28 @@ def generate_Exploris_DDAMS2_table_from_MS2Planner(
         if polarity not in ('Positive', 'Negative'):
             raise ValueError("Invalid polarity. Allowed values are 'Positive' or 'Negative'")
         
-        if polarity == 'Negative':
-            df['z'] = [-1 if (x != 0 and not np.isnan(x)) else x for x in df_master['charge']]
-        else:
-            df['z'] = [1 if (x != 0 and not np.isnan(x)) else x for x in df_master['charge']]
+        df['z'] = [0 if np.isnan(x) else x for x in df_master['charge']]
+        df['z'] = df['z'].astype(int)
 
         #RT
-        df["rt start (min)"] = round(df_master["rt_start"]/60, 3)
-        df["rt stop (min)"] = round(df_master["rt_end"]/60, 3)
+        df["t start (min)"] = round(df_master["rt_start"]/60, 3)
+        df["t stop (min)"] = round(df_master["rt_end"]/60, 3)
         df["Intensity Threshold"] = round(df_master["intensity"]*apex_int_percent,0)
 
         # If multiple collision energies are provided
         if CEs != '':
-            if type(CEs) == list:
+            if type(CEs) == list and len(CEs) >= 2:
                 for x in CEs:
                     df_new = df.copy()
                     df_new["HCD Collision Energies (%)"] = str(x)
                     df = pd.concat([df, df_new], axis=0)
-                    df["Maximum Injection Time (ms)"] = df["Maximum Injection Time (ms)"]*len(CEs)*1.25   # reducing the max IT to account for multiple MS2 scan 
+                    df["Maximum Injection Time (ms)"] = df["Maximum Injection Time (ms)"]*len(CEs)*1.25 #WEIRD!  # reducing the max IT to account for multiple MS2 scan 
 
             else:
-                df["HCD Collision Energies (%)"] = str(CEs)
-                df["Maximum Injection Time (ms)"] = round(((df_master["duration"])/1000)-transient_time,0)
+                df["HCD Collision Energies (%)"] = CEs
+                df["Maximum Injection Time (ms)"] = round(((df_master["duration"]*1000)-transient_time),0)  # accounting for multipling
 
-        df.to_csv(output_filename, index = False, sep=',')
+        df.to_csv(output_filename[:-4]+"_start_stop.csv", index = False, sep=',')
 
 # EXPLORIS TARGETED tMS2
 def generate_Exploris_tMS2_table_from_MS2Planner(
@@ -439,10 +439,12 @@ def generate_Exploris_tMS2_table_from_MS2Planner(
     posttarget_rt_margin:float = 0,     # Time (in secs) to add to the rt_end
     transient_time:float = 15,          # Transient time (in msecs)
     polarity:str = 'Positive',          # Polarity either 'Positive' or 'Negative'
-    RF_base_value:float = np.nan,           # Base RF lens value (%)
-    CEs:str or List[str] = np.nan         # Normalized Colission energy(ies), stepping is possible like '25,35,45' or ['25,35,45','55,75']
+    RF_base_value:float = np.nan,       # Base RF lens value (%)
+    CEs:str or List[str] = '15,30,45',   # Normalized Colission energy(ies), stepping is possible like '25,35,45' or ['25,35,45','55,75']
+    min_AGC: int = 75,  # Add min_AGC argument
+    max_AGC: int = 300   # Add max_AGC argument
 ) -> pd.DataFrame:
-    
+
         """
     Format a table with mz, charge, rt, and intensities into an Exploris series inclusion/exclusion list. 
     
@@ -472,14 +474,16 @@ def generate_Exploris_tMS2_table_from_MS2Planner(
         
         
         # Calculate the minimum value of rt_start column by adding pretarget_rt_margin to the maximum value of rt_start column 
-        min_rt_value = df_master['rt_start'].max() + pretarget_rt_margin
+        min_rt_value = df_master['rt_start'].min() + (pretarget_rt_margin*60)
         # Subtract pretarget_rt_margin from rt_start column for all rows that have values greater than min_rt_value
-        df_master.loc[df_master['rt_start'] > min_rt_value, 'rt_start'] = (df_master['rt_start'] - pretarget_rt_margin)
-        
+        df_master.loc[df_master['rt_start'] > min_rt_value, 'rt_start'] = (df_master['rt_start'] - (pretarget_rt_margin*60))
+        # Replace negative values in the 'rt_start' column with 0
+        df_master['rt_start'] = df_master['rt_start'].apply(lambda x: max(0, x))
+
         # Calculate the maximum value of rt_end column by subtracting posttarget_rt_margin from the maximum value of rt_end column 
-        max_rt_value = df_master['rt_end'].max() - posttarget_rt_margin
+        max_rt_value = df_master['rt_end'].max() - (posttarget_rt_margin*60)
         # Add posttarget_rt_margin to rt_end column for all rows that have values less than max_rt_value
-        df_master.loc[df_master['rt_end'] < max_rt_value, 'rt_end'] = (df_master['rt_end'] + posttarget_rt_margin)
+        df_master.loc[df_master['rt_end'] < max_rt_value, 'rt_end'] = (df_master['rt_end'] + (posttarget_rt_margin*60))
         
         df_master['for_comments'] = 'Apex = ' + df_master['rt_apex'].round(3).astype(str) + ' (sec) ' + (df_master['rt_apex']/60).round(2).astype(str)+' (min) and int. = '+ df_master['intensity'].astype(float).map(lambda n: '{:.2E}'.format(n)).astype(str)
 
@@ -498,35 +502,49 @@ def generate_Exploris_tMS2_table_from_MS2Planner(
         if polarity not in ('Positive', 'Negative'):
             raise ValueError("Invalid polarity. Allowed values are 'Positive' or 'Negative'")
                 
-        if polarity == 'Negative':
-            df['Precursor Charge (z)'] = [-1 if x != x or x == 0 else -x for x in df_master['charge']] 
-        else:
-            df['Precursor Charge (z)'] = [1 if x != x or x == 0 else x for x in df_master['charge']] 
+        df['Precursor Charge (z)'] = [0 if np.isnan(x) else x for x in df_master['charge']]
+        df['Precursor Charge (z)'] = df['Precursor Charge (z)'].astype(int)
 
-        df["rt start (min)"] = round(df_master["rt_start"]/60, 3)
-        df["rt stop (min)"] = round(df_master["rt_end"]/60, 3)
-        df["Isolation Window (m/z)"] = round(df_master["mz_isolation"],0)
+        df["t start (min)"] = round(df_master["rt_start"]/60, 3)
+        df["t stop (min)"] = round(df_master["rt_end"]/60, 3)
+        df["Isolation Window (m/z)"] = round(df_master["mz_isolation"],1)
         df["Orbitrap Resolution"] = '15000'
-        
-        # Normalize RF Lens based on Precursor column
+
+        # Assuming you have a DataFrame df and RF_base_value is defined
         if not np.isnan(RF_base_value):
-            precursor_min = df['Precursor (m/z)'].min()
-            precursor_max = df['Precursor (m/z)'].max()
-            df['RF Lens (%)'] = (df['Precursor (m/z)'] - precursor_min)/(precursor_max - precursor_min) * RF_base_value
-            df["RF Lens (%)"] = np.clip(df["RF Lens (%)"], 40, 100)             # Clip the values for min/max
+            # Values for linear scaling
+            mz_100_value = 50
+            mz_increment = 5
+            mz_step = 50
+            
+            # Calculate the slope and intercept for the linear equation
+            slope = mz_increment / mz_step
+            intercept = mz_100_value - (slope * 100)
+            
+            # Calculate the values for 'RF Lens (%)' based on the linear scaling
+            df['RF Lens (%)'] = slope * df['Precursor (m/z)'] + intercept
+            
+            # Apply amplitude range bounds
+            lower_bound = 0.75 * RF_base_value
+            upper_bound = 1.50 * RF_base_value
+            df['RF Lens (%)'] = np.clip(df['RF Lens (%)'], lower_bound, upper_bound)
 
-        # Normalize Normalized AGC Target based on intensity column
-        df['Normalized AGC Target (%)'] = 50 * (df_master['intensity'] - df_master['intensity'].min()) / (df_master['intensity'].max() - df_master['intensity'].min()) + 75
-
-        df["Maximum Injection Time (ms)"] = round(((df_master["duration"])/1000)-transient_time,0)
+        # Log Normalized AGC Target based on intensity column
+        df_master['log_intensity'] = np.log10(df_master['intensity'])
+        df['Normalized AGC Target (%)'] = (max_AGC - min_AGC) * (df_master['log_intensity'] - df_master['log_intensity'].min()) / (df_master['log_intensity'].max() - df_master['log_intensity'].min()) + min_AGC
+        
+        # Reverse the normalization so that smaller intensities result in larger AGC targets
+        df['Normalized AGC Target (%)'] = max_AGC - (df['Normalized AGC Target (%)'] - min_AGC)
+        
+        df["Maximum Injection Time (ms)"] = round(((df_master["duration"]*1000)-transient_time),0)
 
         df["Microscans"] = '1'
         df["Data Type"] = 'Profile'
         df["Polarity"] = str(polarity)
         
         # If multiple collision energies are provided
-        if not np.isnan(CEs):
-            if type(CEs) == list:
+        if CEs != '':
+            if type(CEs) == list and len(CEs) >= 2:
                 for x in CEs:
                     df_new = df.copy()
                     df_new["HCD Collision Energies (%)"] = str(x)
@@ -534,6 +552,6 @@ def generate_Exploris_tMS2_table_from_MS2Planner(
                     df["Maximum Injection Time (ms)"] = df["Maximum Injection Time (ms)"]*len(CEs)*1.25   # reducing the max IT to account for multiple MS2 scan 
 
             else:
-                df["HCD Collision Energies (%)"] = str(CEs)
+                df["HCD Collision Energies (%)"] = CEs             
 
-        df.to_csv(output_filename, index = False, sep=',')
+        df.to_csv(output_filename[:-4]+"_start_stop.csv", index = False, sep=',')
