@@ -309,7 +309,8 @@ def MS2Planner_baseline(input_filename:int, num_path:int, intensity_ratio:float,
                         max_same_RT:float, transient_time:float,
                         polarity:str, apex_int_percent:float=0.6,
                         pretarget_rt_margin:float=0, posttarget_rt_margin:float=0, 
-                        RF_base_value:int=np.nan, CEs:str or List[str] = np.nan
+                        RF_base_value:int=np.nan, CEs:str or List[str] = np.nan,
+                        min_AGC:float=100, max_AGC:float=300
                         ):
 
     output_dir = 'results_targeted_MS2Planner_baseline'
@@ -405,6 +406,8 @@ def MS2Planner_baseline(input_filename:int, num_path:int, intensity_ratio:float,
     logger.info('    Exploris: Posttarget retention time margin for target ion list (sec. = ' + str(posttarget_rt_margin)+')')
     logger.info('    Exploris serie RF base value = ' + str(RF_base_value))
     logger.info('    Exploris serie CEs = ' + str(CEs))
+    logger.info('    Exploris serie min AGC = ' + str(min_AGC))
+    logger.info('    Exploris serie max AGC = ' + str(max_AGC))
 
     logger.info(' ')
     logger.info('== Pre-filtering input table ===')
@@ -490,7 +493,7 @@ def MS2Planner_baseline(input_filename:int, num_path:int, intensity_ratio:float,
             output_filename[:-4]+'_filtered_MS2Planner_baseline_path_'+str(i+1)+'.csv', 
             output_filename[:-4]+'_filtered_MS2Planner_baseline_path_'+str(i+1)+'_Exploris_tMS2.txt',
             pretarget_rt_margin=pretarget_rt_margin,  posttarget_rt_margin=posttarget_rt_margin, transient_time=transient_time,
-            polarity=polarity, RF_base_value=RF_base_value, CEs=CEs)
+            polarity=polarity, RF_base_value=RF_base_value, CEs=CEs, min_AGC=min_AGC, max_AGC=max_AGC)
     
     make_plot_MS2Planner(output_filename, directory, count, 'baseline')
 
@@ -506,7 +509,8 @@ def MS2Planner_apex(input_filename:int, num_path:int, intensity_ratio:float, int
                     rt_margin:float, max_same_RT:int, transient_time:float,
                     polarity:str, apex_int_percent:float, 
                     pretarget_rt_margin:float=0, posttarget_rt_margin:float=0, 
-                    RF_base_value:float=np.nan, CEs:str or List[str]=np.nan
+                    RF_base_value:float=np.nan, CEs:str or List[str]=np.nan,
+                    min_AGC:float=100, max_AGC:float=300
 ):
 
     output_dir = 'results_targeted_MS2Planner_apex'
@@ -608,6 +612,8 @@ def MS2Planner_apex(input_filename:int, num_path:int, intensity_ratio:float, int
     logger.info('    Exploris: Posttarget retention time margin for target ion list (sec. = ' + str(posttarget_rt_margin)+')')
     logger.info('    Exploris serie RF base value = ' + str(RF_base_value))
     logger.info('    Exploris serie CEs = ' + str(CEs))
+    logger.info('    Exploris serie min AGC = ' + str(min_AGC))
+    logger.info('    Exploris serie max AGC = ' + str(max_AGC))
 
     logger.info(' ')
     logger.info('== Pre-filtering input table ===')
@@ -675,7 +681,8 @@ def MS2Planner_apex(input_filename:int, num_path:int, intensity_ratio:float, int
         generate_MQL_tMS2_table_from_MS2Planner(
                     output_filename[:-4]+'_filtered_MS2Planner_apex_path_'+str(i+1)+'.csv', 
                     output_filename[:-4]+'_filtered_MS2Planner_apex_path_'+str(i+1)+'_MQL.txt',
-                    rt_margin=rt_margin, delay=delay, transient_time=transient_time, polarity=polarity, apex_int_percent=apex_int_percent)
+                    rt_margin=rt_margin, delay=delay, transient_time=transient_time, polarity=polarity, 
+                    apex_int_percent=apex_int_percent)
     
     #Format for Exploris
     for i in range(count):
@@ -691,7 +698,7 @@ def MS2Planner_apex(input_filename:int, num_path:int, intensity_ratio:float, int
             output_filename[:-4]+'_filtered_MS2Planner_apex_path_'+str(i+1)+'_Exploris_tMS2.txt',
             pretarget_rt_margin=pretarget_rt_margin,  posttarget_rt_margin=posttarget_rt_margin, 
             transient_time=transient_time, polarity=polarity,
-            RF_base_value=RF_base_value, CEs=CEs)
+            RF_base_value=RF_base_value, CEs=CEs, min_AGC=min_AGC, max_AGC=max_AGC)
     
     logger.info('======')
     make_plot_MS2Planner(output_filename,directory,count, 'apex')
@@ -708,7 +715,8 @@ def MS2Planner_curve(input_filename:int, num_path:int, intensity_ratio:float, in
                         rt_margin:float, transient_time:float, max_same_RT:float, 
                         apex_int_percent:float, polarity:str,
                         pretarget_rt_margin:float, posttarget_rt_margin:float, 
-                        RF_base_value:float=np.nan, CEs:str or List[str]=np.nan
+                        RF_base_value:float=np.nan, CEs:str or List[str]=np.nan,
+                        min_AGC:float=100, max_AGC:float=300
 ):
 
     output_dir = 'results_targeted_MS2Planner_curve'
@@ -812,6 +820,9 @@ def MS2Planner_curve(input_filename:int, num_path:int, intensity_ratio:float, in
     logger.info('    Exploris: Posttarget retention time margin for target ion list (sec. = ' + str(posttarget_rt_margin)+')')
     logger.info('    Exploris serie RF base value = ' + str(RF_base_value))
     logger.info('    Exploris serie CEs = ' + str(CEs))
+    logger.info('    Exploris serie min AGC = ' + str(min_AGC))
+    logger.info('    Exploris serie max AGC = ' + str(max_AGC))
+
     logger.info(' ')
     logger.info('=== FILTERING THE INPUT FEATURE TABLE ===')
     logger.info('   Number of features in the table = '+ str(feature_table.shape[0]-1))
@@ -897,7 +908,7 @@ def MS2Planner_curve(input_filename:int, num_path:int, intensity_ratio:float, in
             output_filename[:-4]+'_filtered_MS2Planner_curve_path_'+str(i+1)+'_Exploris_tMS2.txt',
             pretarget_rt_margin=pretarget_rt_margin,  posttarget_rt_margin=posttarget_rt_margin, 
             transient_time=transient_time, polarity=polarity,
-            RF_base_value=RF_base_value, CEs=CEs)
+            RF_base_value=RF_base_value, CEs=CEs, min_AGC=min_AGC, max_AGC=max_AGC)
     
     make_plot_MS2Planner(output_filename,directory,count, 'curve')
 
