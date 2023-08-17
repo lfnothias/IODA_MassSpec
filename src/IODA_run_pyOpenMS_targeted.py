@@ -14,7 +14,7 @@ import glob
 import pandas as pd
 import gc
 
-def IODA_targeted_workflow(blank_mzML:str,sample_mzML:str,ppm_tolerance:float,noise_level:float, chrom_peak_snr:float, elements_alphabet:str):
+def IODA_targeted_workflow(blank_mzML:str,sample_mzML:str,ppm_tolerance:float, noise_level:float, chrom_peak_snr:float, elements_alphabet:str):
     # Test samples
         #source_mzML1 = "https://raw.githubusercontent.com/lfnothias/IODA_MS/master/tests/Euphorbia/Targeted/OpenMS_input/Euphorbia_rogers_latex_Blank_MS1_2uL.mzML"
         #source_mzML2 = "https://raw.githubusercontent.com/lfnothias/IODA_MS/master/tests/Euphorbia/Targeted/OpenMS_input/Euphorbia_rogers_latex_latex_MS1_2uL.mzML"
@@ -35,11 +35,6 @@ def IODA_targeted_workflow(blank_mzML:str,sample_mzML:str,ppm_tolerance:float,no
     os.system('rm -r OpenMS_workflow/OpenMS_output/*')
     os.system('mkdir download_results')
         
-        
-        
-    #large_noise = 5E5
-    #narrow_noise = 1E5
-    #ppm_error = 10
 
     today = str(date.today())
     now = datetime.datetime.now()
@@ -134,15 +129,49 @@ def IODA_targeted_workflow(blank_mzML:str,sample_mzML:str,ppm_tolerance:float,no
     download_copy_mzML(blank_mzML)
     download_copy_mzML(sample_mzML)
 
+
+    logger.info('======')
+    logger.info('Variables of the pyOpenMS workflow')
+    logger.info('   ppm error = '+str(ppm_tolerance))
+    logger.info('   noise threshold = '+str(noise_level))
+    logger.info('   chrom_peak_snr = '+str(chrom_peak_snr))
+
+
+    #"== The noise level must be a float or an integer, such as 6.0e05 =="
+    try:
+        float(noise_level)
+    except subprocess.CalledProcessError:
+        logger.info("== The noise_level must be a float or an integer, such as 1e05 ==")
+
+    #"== The noise level must be a float or an integer, such as 6.0e05 =="
+    try:
+        float(ppm_tolerance)
+    except subprocess.CalledProcessError:
+        logger.info("== The ppm_tolerance level must be a float or an integer, such as 10 ppm ==")
+    #"== The ppm error must be a float or an integer, such as 10 ppm =="
+    try:
+        float(chrom_peak_snr)
+    except subprocess.CalledProcessError:
+        logger.info("== The chrom_peak_snr must be a float or an integer, such as 3 ==")
+
+    logger.info('======')
+    logger.info('Initializing the pyOpenMS workflow')
+
+    logger.info('======')
+    logger.info('Running the pyOpenMS workflow, this usually takes less than a minute, please wait ...')
+
+
+
+
     # Feature Detection
     input_mzml_files = glob.glob("OpenMS_workflow/OpenMS_input/*.mzML") # introduce a set of mzML files directory
 
     # Mass trace detection
 
     #mtd
-    mass_error_ppm = 10.0
-    noise_threshold_int = 5e5
-    chrom_peak_snr = 3.0
+    mass_error_ppm = float(ppm_tolerance)   #10.0  
+    noise_threshold_int = float(noise_level) #5e5
+    chrom_peak_snr = float(chrom_peak_snr) #3.0
     chrom_fwhm = 10.0
     reestimate_mt_sd = 'true'
     quant_method = 'max_height'
@@ -219,6 +248,7 @@ def IODA_targeted_workflow(blank_mzML:str,sample_mzML:str,ppm_tolerance:float,no
         ffm = FeatureFindingMetabo()
         ffm_par = ffm.getDefaults() 
         ffm_par.setValue("remove_single_traces", remove_single_traces) # remove mass traces without satellite isotopic traces
+        ffm_par.setValue("local_mz_range", local_mz_range)  
         ffm_par.setValue("local_rt_range", local_rt_range)  
         ffm_par.setValue("charge_lower_bound", charge_lower_bound)      
         ffm_par.setValue("charge_upper_bound", charge_upper_bound)  
@@ -266,12 +296,12 @@ def IODA_targeted_workflow(blank_mzML:str,sample_mzML:str,ppm_tolerance:float,no
     nr_partitions = 50
     warp_enabled = 'false'
     warp_rt_tol = 30.0
-    warp_mz_tol = 10.0
+    warp_mz_tol = mass_error_ppm #10
     warp_max_pairwise_log_fc = 0.0
     warp_min_rel_cc_size = 0.0
     warp_max_nr_conflicts = -1
     link_rt_tol = 30
-    link_mz_tol = 10
+    link_mz_tol = mass_error_ppm #10
     link_charge_merging = 'With_charge_zero'
     link_adduct_merging = 'Any'
     distance_RT_exponent = 1.0
