@@ -19,6 +19,7 @@ import pathlib
 def process_input_table(input_filename: str, output_filename: str):
     """Take an MZmine3 or an mzTab containing two samples, output a table with mz, charge, rt, intensities."""
     
+
     if input_filename.endswith('.mzTab'):
         print("Input file is an mzTab")
 
@@ -99,7 +100,7 @@ def process_input_table(input_filename: str, output_filename: str):
         return highest_sum_col, smallest_sum_col
 
     elif input_filename.endswith('MS2Planner.csv'):
-        print("Input file is a consensus table from pyOpenMS")
+        print("Input file is a consensus table from pyOpenMS or provided file")
         
         # Process the MZmine3 table
         table = pd.read_csv(input_filename, index_col=False, on_bad_lines='skip')
@@ -107,7 +108,7 @@ def process_input_table(input_filename: str, output_filename: str):
         #Detection of blank
         #print('#Deducing the blank sample by comparing the sum of feature intensity between samples')
 
-        # Get all columns containing 'Peak area' in their name
+        # Get all columns containing 'mzML' in their name
         peak_area_cols = table.filter(like='mzML')
 
         # Loop through each column and calculate its sum
@@ -119,8 +120,8 @@ def process_input_table(input_filename: str, output_filename: str):
         highest_sum_col = max(sums, key=sums.get)
         smallest_sum_col = min(sums, key=sums.get)
 
-        logger.info('- For sample ' + str(smallest_sum_col) + ', the sum of feature intensities = ' + '{:.2e}'.format(sums[smallest_sum_col]))
-        logger.info('- For sample ' + str(highest_sum_col) + ', the sum of feature intensities = ' + '{:.2e}'.format(sums[highest_sum_col]))
+        logger.info('- For sample ' + str(smallest_sum_col) + ', the sum of feature intensities = ' + '{:.2e}'.format(float(sums[smallest_sum_col])))
+        logger.info('- For sample ' + str(highest_sum_col) + ', the sum of feature intensities = ' + '{:.2e}'.format(float(sums[highest_sum_col])))
         logger.info('- The blank sample is assumed to be '+str(smallest_sum_col)+' in the feature table')
         logger.info('- The sample is assumed to be '+str(highest_sum_col)+' in the feature table')
         table = table.fillna(0).sort_values('retention_time')
